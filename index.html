@@ -1,957 +1,875 @@
 <!DOCTYPE html>
+
 <html lang="de">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <meta name="apple-mobile-web-app-capable" content="yes"/>
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-  <meta name="apple-mobile-web-app-title" content="GrowTracker"/>
-  <meta name="theme-color" content="#0a0f0d"/>
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="apple-touch-icon" href="icon-192.png"/>
-  <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"/>
-  <title>Orion Grow Tracker</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#0a0f0d;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.08);--text:rgba(255,255,255,0.9);--muted:rgba(255,255,255,0.38);--phase-color:#a8e063}
-    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
-    #app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;overflow:hidden}
-    #glow{position:fixed;top:-100px;left:50%;transform:translateX(-50%);width:320px;height:320px;border-radius:50%;pointer-events:none;z-index:0;transition:background 0.7s ease}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GrowTracker">
+<meta name="theme-color" content="#0a0f0d">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Orion Grow Tracker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0f0d;--text:rgba(255,255,255,0.9);--muted:rgba(255,255,255,0.38);--border:rgba(255,255,255,0.08);--green:#a8e063;--pc:#a8e063}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
+#app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:430px;margin:0 auto}
 
-    /* ONBOARDING */
-    #onboard{position:fixed;inset:0;background:#0a0f0d;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
-    .ob-emoji{font-size:64px;margin-bottom:16px}
-    .ob-title{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin-bottom:8px}
-    .ob-sub{font-size:14px;color:var(--muted);margin-bottom:32px;line-height:1.5}
-    .ob-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;text-align:left;width:100%}
-    .ob-input{width:100%;padding:16px;border-radius:14px;border:1px solid rgba(168,224,99,0.3);background:rgba(168,224,99,0.06);color:white;font-family:'DM Sans',sans-serif;font-size:16px;outline:none;margin-bottom:20px;-webkit-appearance:none}
-    .ob-btn{width:100%;padding:16px;border-radius:14px;border:none;background:linear-gradient(135deg,#56ab2f,#a8e063);color:#0a0f0d;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:700;cursor:pointer}
+/* ONBOARD */
+#ob{position:fixed;inset:0;background:#0a0f0d;z-index:99;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center}
+.ob-icon{font-size:60px;margin-bottom:14px}
+.ob-title{font-family:‘Playfair Display’,serif;font-size:26px;font-weight:700;margin-bottom:8px}
+.ob-sub{font-size:14px;color:var(–muted);margin-bottom:28px;line-height:1.5}
+.ob-lbl{font-size:11px;color:var(–muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;text-align:left;width:100%}
+#date-in{width:100%;padding:15px;border-radius:14px;border:1px solid rgba(168,224,99,.3);background:rgba(168,224,99,.06);color:white;font-family:‘DM Sans’,sans-serif;font-size:16px;outline:none;margin-bottom:18px;-webkit-appearance:none}
+#go-btn{width:100%;padding:16px;border-radius:14px;border:none;background:linear-gradient(135deg,#56ab2f,#a8e063);color:#0a0f0d;font-family:‘DM Sans’,sans-serif;font-size:16px;font-weight:700;cursor:pointer}
 
-    /* HEADER */
-    .header{padding:env(safe-area-inset-top,16px) 20px 10px;padding-top:max(env(safe-area-inset-top),20px);position:relative;z-index:2;flex-shrink:0}
-    .header-meta{font-size:10px;color:var(--muted);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:2px}
-    .header-row{display:flex;align-items:center;justify-content:space-between}
-    .header-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
-    .header-date{font-size:11px;color:var(--phase-color);font-weight:600}
-    .header-harvest{font-size:11px;color:var(--muted);margin-top:2px}
+/* HEADER */
+.hdr{padding:20px 20px 8px;padding-top:max(env(safe-area-inset-top),20px);flex-shrink:0}
+.hdr-meta{font-size:10px;color:var(–muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
+.hdr-row{display:flex;align-items:center;justify-content:space-between}
+.hdr-title{font-family:‘Playfair Display’,serif;font-size:21px;font-weight:700}
+.hdr-right{text-align:right}
+.hdr-week{font-size:11px;font-weight:600}
+.hdr-harvest{font-size:10px;color:var(–muted);margin-top:1px}
 
-    /* PROGRESS */
-    .progress-wrap{padding:8px 20px 0;position:relative;z-index:2;flex-shrink:0}
-    .progress-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px}
-    .progress-bar-bg{height:4px;background:rgba(255,255,255,0.07);border-radius:99px;overflow:hidden}
-    .progress-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#a8e063,var(--phase-color));transition:width 0.5s cubic-bezier(.4,0,.2,1)}
+/* PROGRESS */
+.prog{padding:6px 20px 0;flex-shrink:0}
+.prog-lbls{display:flex;justify-content:space-between;font-size:10px;color:var(–muted);margin-bottom:4px}
+.prog-bg{height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+.prog-fill{height:100%;border-radius:99px;transition:width .5s ease}
 
-    /* TAB BAR */
-    .tab-bar{display:flex;padding:8px 16px 0;gap:6px;position:relative;z-index:2;flex-shrink:0}
-    .tab-btn{flex:1;padding:9px 4px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;-webkit-tap-highlight-color:transparent;display:flex;flex-direction:column;align-items:center;gap:3px}
-    .tab-btn.active{border-color:var(--phase-color);background:color-mix(in srgb,var(--phase-color) 12%,transparent);color:var(--phase-color)}
-    .tab-btn span{font-size:16px}
+/* TABS */
+.tabs{display:flex;padding:8px 14px 0;gap:6px;flex-shrink:0}
+.tab{flex:1;padding:8px 2px;border-radius:11px;border:1px solid var(–border);background:rgba(255,255,255,.03);color:var(–muted);font-family:‘DM Sans’,sans-serif;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;-webkit-tap-highlight-color:transparent;transition:all .2s}
+.tab.on{border-color:var(–pc);background:rgba(168,224,99,.1);color:var(–pc)}
+.tab-ic{font-size:15px}
 
-    /* WEEK SELECTOR */
-    .week-scroll{display:flex;gap:7px;padding:8px 20px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:relative;z-index:2;flex-shrink:0}
-    .week-scroll::-webkit-scrollbar{display:none}
-    .week-btn{flex-shrink:0;width:42px;height:42px;border-radius:12px;border:2px solid var(--border);background:rgba(255,255,255,0.03);color:var(--muted);font-size:9px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all 0.2s;-webkit-tap-highlight-color:transparent;position:relative}
-    .week-btn.active{border-color:var(--phase-color);background:color-mix(in srgb,var(--phase-color) 15%,transparent);color:var(--phase-color)}
-    .week-btn.current-week::after{content:'';position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:var(--phase-color);border:1px solid #0a0f0d}
-    .w-emoji{font-size:15px;line-height:1}
+/* WEEK BAR */
+.wbar{display:flex;gap:6px;padding:8px 16px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;-webkit-overflow-scrolling:touch}
+.wbar::-webkit-scrollbar{display:none}
+.wbtn{flex-shrink:0;width:40px;height:40px;border-radius:11px;border:2px solid var(–border);background:rgba(255,255,255,.03);color:var(–muted);font-size:9px;font-weight:700;font-family:‘DM Sans’,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;position:relative;-webkit-tap-highlight-color:transparent;transition:all .2s}
+.wbtn.on{border-color:var(–pc);background:rgba(168,224,99,.12);color:var(–pc)}
+.wbtn.cur::after{content:’’;position:absolute;top:-3px;right:-3px;width:7px;height:7px;border-radius:50%;background:var(–pc);border:1px solid #0a0f0d}
+.wic{font-size:14px;line-height:1}
 
-    /* CONTENT PANELS */
-    .panel{display:none;flex:1;overflow-y:auto;padding:0 16px;scrollbar-width:none;position:relative;z-index:2;-webkit-overflow-scrolling:touch}
-    .panel::-webkit-scrollbar{display:none}
-    .panel.active{display:block}
+/* PANELS */
+.panel{display:none;flex:1;overflow-y:auto;padding:0 14px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.panel::-webkit-scrollbar{display:none}
+.panel.on{display:block}
 
-    /* CARDS */
-    .card{border-radius:20px;background:var(--card);border:1px solid color-mix(in srgb,var(--phase-color) 25%,transparent);overflow:hidden;margin-bottom:12px}
-    .card-header{padding:14px 18px 12px;background:color-mix(in srgb,var(--phase-color) 10%,transparent);border-bottom:1px solid color-mix(in srgb,var(--phase-color) 15%,transparent);display:flex;align-items:center;gap:12px}
-    .card-icon{width:46px;height:46px;border-radius:13px;background:color-mix(in srgb,var(--phase-color) 18%,transparent);border:1px solid color-mix(in srgb,var(--phase-color) 35%,transparent);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-    .card-week{font-size:10px;color:var(--phase-color);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:2px}
-    .card-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;line-height:1.1}
-    .card-dates{font-size:11px;color:var(--muted);margin-top:2px}
-    .card-body{padding:4px 18px 12px}
-    .info-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.055)}
-    .info-row:last-child{border-bottom:none}
-    .info-icon{font-size:14px;min-width:20px;padding-top:1px}
-    .info-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px}
-    .info-value{font-size:13px;color:var(--text);line-height:1.4}
-    .info-value.highlight{color:#ffd166;font-weight:600}
-    .info-value.danger{color:#ff6b6b;font-weight:600}
-    .info-value.success{color:#a8e063;font-weight:600}
+/* CARD */
+.card{border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(168,224,99,.2);overflow:hidden;margin-bottom:10px}
+.card-hdr{padding:13px 16px 11px;background:rgba(168,224,99,.08);border-bottom:1px solid rgba(168,224,99,.12);display:flex;align-items:center;gap:11px}
+.card-ic{width:44px;height:44px;border-radius:12px;background:rgba(168,224,99,.15);border:1px solid rgba(168,224,99,.3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.card-wk{font-size:10px;color:var(–pc);text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:2px}
+.card-nm{font-family:‘Playfair Display’,serif;font-size:18px;font-weight:700;line-height:1.1}
+.card-dt{font-size:10px;color:var(–muted);margin-top:2px}
+.card-bdy{padding:4px 16px 10px}
+.row{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.row:last-child{border-bottom:none}
+.ri{font-size:13px;min-width:18px;padding-top:1px}
+.rl{font-size:10px;color:var(–muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:1px}
+.rv{font-size:13px;line-height:1.4}
+.rv.hl{color:#ffd166;font-weight:600}
+.rv.danger{color:#ff6b6b;font-weight:600}
+.rv.ok{color:#a8e063;font-weight:600}
 
-    /* TIPS */
-    .tips-card{border-radius:18px;background:var(--card);border:1px solid color-mix(in srgb,var(--phase-color) 20%,transparent);overflow:hidden;margin-bottom:12px}
-    .tips-header{padding:11px 16px;background:color-mix(in srgb,var(--phase-color) 8%,transparent);font-size:11px;color:var(--phase-color);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;border-bottom:1px solid color-mix(in srgb,var(--phase-color) 15%,transparent)}
-    .tip-item{padding:9px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:10px;align-items:flex-start}
-    .tip-item:last-child{border-bottom:none}
-    .tip-icon{font-size:13px;flex-shrink:0;margin-top:1px}
-    .tip-text{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5}
+/* TIPS */
+.tips{border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(168,224,99,.15);overflow:hidden;margin-bottom:10px}
+.tips-hdr{padding:10px 14px;background:rgba(168,224,99,.07);font-size:11px;color:var(–pc);text-transform:uppercase;letter-spacing:.1em;font-weight:700;border-bottom:1px solid rgba(168,224,99,.12)}
+.tip{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:9px}
+.tip:last-child{border-bottom:none}
+.tip-ic{font-size:13px;flex-shrink:0;padding-top:1px}
+.tip-tx{font-size:12px;color:rgba(255,255,255,.72);line-height:1.5}
 
-    /* CHECKLIST */
-    .check-card{border-radius:18px;background:var(--card);border:1px solid rgba(255,255,255,0.08);overflow:hidden;margin-bottom:12px}
-    .check-header{padding:11px 16px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;font-weight:700;border-bottom:1px solid rgba(255,255,255,0.06)}
-    .check-item{padding:11px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-    .check-item:last-child{border-bottom:none}
-    .check-box{width:22px;height:22px;border-radius:7px;border:2px solid rgba(255,255,255,0.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;font-size:13px}
-    .check-box.checked{background:var(--phase-color);border-color:var(--phase-color);color:#0a0f0d}
-    .check-label{font-size:13px;color:var(--text);line-height:1.4;transition:color 0.2s}
-    .check-label.checked{color:var(--muted);text-decoration:line-through}
+/* CHECKS */
+.checks{border-radius:16px;background:rgba(255,255,255,.04);border:1px solid var(–border);overflow:hidden;margin-bottom:10px}
+.checks-hdr{padding:10px 14px;font-size:11px;color:var(–muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06)}
+.chk{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04);display:flex;align-items:center;gap:11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.chk:last-child{border-bottom:none}
+.chk-box{width:21px;height:21px;border-radius:6px;border:2px solid rgba(255,255,255,.2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .2s}
+.chk-box.on{background:var(–pc);border-color:var(–pc);color:#0a0f0d}
+.chk-lbl{font-size:13px;line-height:1.4;transition:color .2s}
+.chk-lbl.on{color:var(–muted);text-decoration:line-through}
 
-    /* NOTES */
-    .notes-wrap{margin-bottom:14px}
-    .section-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px}
-    .notes-input{width:100%;min-height:72px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 13px;resize:none;outline:none;transition:border-color 0.2s}
-    .notes-input:focus{border-color:color-mix(in srgb,var(--phase-color) 50%,transparent)}
-    .notes-input::placeholder{color:rgba(255,255,255,0.2)}
-    .action-btn{padding:9px 16px;border-radius:10px;border:1px solid color-mix(in srgb,var(--phase-color) 35%,transparent);background:color-mix(in srgb,var(--phase-color) 14%,transparent);color:var(--phase-color);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-top:7px}
-    .action-btn.full{width:100%;text-align:center}
-    .action-btn.secondary{border-color:var(--border);background:rgba(255,255,255,0.04);color:var(--muted)}
+/* NOTES */
+.notes-wrap{margin-bottom:12px}
+.sec-lbl{font-size:10px;color:var(–muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.ntxt{width:100%;min-height:68px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:11px;color:var(–text);font-family:‘DM Sans’,sans-serif;font-size:13px;padding:9px 12px;resize:none;outline:none}
+.sbtn{margin-top:6px;padding:9px 14px;border-radius:9px;border:1px solid rgba(168,224,99,.3);background:rgba(168,224,99,.12);color:var(–pc);font-family:‘DM Sans’,sans-serif;font-size:12px;font-weight:600;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sbtn.full{width:100%;text-align:center;display:block}
 
-    /* NAV */
-    .nav{display:flex;gap:10px;padding:8px 16px;padding-bottom:max(env(safe-area-inset-bottom),12px);flex-shrink:0;position:relative;z-index:2}
-    .nav-btn{flex:1;padding:13px;border-radius:16px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.25s;-webkit-tap-highlight-color:transparent}
-    .nav-btn.prev{border:1px solid var(--border);background:rgba(255,255,255,0.04);color:var(--muted)}
-    .nav-btn.next{border:1px solid color-mix(in srgb,var(--phase-color) 40%,transparent);background:color-mix(in srgb,var(--phase-color) 16%,transparent);color:var(--phase-color)}
-    .nav-btn:disabled{opacity:0.3;cursor:default}
-    .nav-btn:not(:disabled):active{transform:scale(0.97)}
+/* CALC */
+.calc-card{border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(168,224,99,.2);overflow:hidden;margin-bottom:10px}
+.calc-hdr{padding:13px 16px;background:rgba(168,224,99,.08);border-bottom:1px solid rgba(168,224,99,.12)}
+.calc-title{font-family:‘Playfair Display’,serif;font-size:18px;font-weight:700}
+.calc-sub{font-size:11px;color:var(–muted);margin-top:2px}
+.calc-bdy{padding:14px 16px}
+.calc-inp-row{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.calc-inp{flex:1;padding:13px;border-radius:11px;border:1px solid rgba(168,224,99,.3);background:rgba(168,224,99,.06);color:white;font-family:‘DM Sans’,sans-serif;font-size:20px;font-weight:700;outline:none;text-align:center;-webkit-appearance:none}
+.calc-unit{font-size:13px;color:var(–muted);font-weight:600}
+.calc-row{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-radius:11px;background:rgba(255,255,255,.04);margin-bottom:6px}
+.calc-row.hl{background:rgba(168,224,99,.08);border:1px solid rgba(168,224,99,.2)}
+.calc-name{font-size:13px;font-weight:500}
+.calc-val{font-size:18px;font-weight:700;color:var(–pc)}
+.calc-val.zero{color:rgba(255,255,255,.2);font-size:14px}
+.calc-note{padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.03);font-size:12px;color:var(–muted);line-height:1.5;margin-top:4px}
 
-    /* TOAST */
-    .toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(30,40,30,0.95);border:1px solid rgba(168,224,99,0.3);color:#a8e063;padding:10px 20px;border-radius:50px;font-size:13px;font-weight:500;opacity:0;transition:all 0.3s;z-index:999;white-space:nowrap;pointer-events:none}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* COUNTDOWN */
+.cdown{border-radius:18px;background:rgba(168,224,99,.07);border:1px solid rgba(168,224,99,.2);padding:18px;margin-bottom:10px;text-align:center}
+.cdown-lbl{font-size:10px;color:var(–pc);text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:6px}
+.cdown-num{font-family:‘Playfair Display’,serif;font-size:52px;font-weight:700;color:var(–pc);line-height:1}
+.cdown-sub{font-size:12px;color:var(–muted);margin-top:4px}
+.cdown-date{font-size:13px;font-weight:600;margin-top:3px}
 
-    /* BADGE */
-    .badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:0.08em;margin-left:8px;vertical-align:middle}
-    .badge.past{background:rgba(255,255,255,0.1);color:var(--muted)}
-    .badge.current{background:color-mix(in srgb,var(--phase-color) 25%,transparent);color:var(--phase-color)}
-    .badge.future{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.25)}
+/* PHOTOS */
+.photo-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.photo-title{font-family:‘Playfair Display’,serif;font-size:17px;font-weight:700}
+.add-btn{width:40px;height:40px;border-radius:11px;border:1px solid rgba(168,224,99,.3);background:rgba(168,224,99,.1);color:var(–pc);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.pthumb{width:100%;aspect-ratio:1;border-radius:12px;object-fit:cover;cursor:pointer}
+.pempty{aspect-ratio:1;border-radius:12px;border:1px dashed rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:var(–muted);font-size:11px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.pempty-ic{font-size:26px}
+#finput{display:none}
 
-    /* ===== DÜNGER RECHNER ===== */
-    .calc-card{border-radius:20px;background:var(--card);border:1px solid color-mix(in srgb,var(--phase-color) 25%,transparent);overflow:hidden;margin-bottom:12px}
-    .calc-header{padding:14px 18px;background:color-mix(in srgb,var(--phase-color) 10%,transparent);border-bottom:1px solid color-mix(in srgb,var(--phase-color) 15%,transparent);font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
-    .calc-sub{font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;margin-top:2px}
-    .calc-body{padding:16px 18px}
-    .calc-input-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-    .calc-input{flex:1;padding:14px;border-radius:12px;border:1px solid rgba(168,224,99,0.3);background:rgba(168,224,99,0.06);color:white;font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;outline:none;text-align:center;-webkit-appearance:none}
-    .calc-unit{font-size:14px;color:var(--muted);font-weight:600;white-space:nowrap}
-    .calc-result{display:flex;flex-direction:column;gap:8px}
-    .calc-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06)}
-    .calc-row.highlight{background:color-mix(in srgb,var(--phase-color) 10%,transparent);border-color:color-mix(in srgb,var(--phase-color) 25%,transparent)}
-    .calc-name{font-size:13px;color:var(--text);font-weight:500;display:flex;align-items:center;gap:8px}
-    .calc-amount{font-size:18px;font-weight:700;color:var(--phase-color)}
-    .calc-amount.zero{color:rgba(255,255,255,0.2)}
-    .calc-note{font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5;padding:10px;border-radius:10px;background:rgba(255,255,255,0.03)}
+/* LIGHTBOX */
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#lb.on{display:flex}
+#lb img{max-width:92vw;max-height:72vh;border-radius:14px;object-fit:contain}
+.lb-btns{display:flex;gap:10px}
+.lb-close{padding:10px 22px;border-radius:50px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:white;font-family:‘DM Sans’,sans-serif;font-size:14px;cursor:pointer}
+.lb-del{padding:10px 22px;border-radius:50px;border:1px solid rgba(255,80,80,.3);background:rgba(255,80,80,.1);color:#ff6b6b;font-family:‘DM Sans’,sans-serif;font-size:14px;cursor:pointer}
 
-    /* ===== FOTO TAGEBUCH ===== */
-    .photo-week-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-    .photo-week-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
-    .photo-add-btn{width:44px;height:44px;border-radius:12px;border:1px solid color-mix(in srgb,var(--phase-color) 40%,transparent);background:color-mix(in srgb,var(--phase-color) 12%,transparent);color:var(--phase-color);font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
-    .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-    .photo-thumb{width:100%;aspect-ratio:1;border-radius:14px;object-fit:cover;border:1px solid rgba(255,255,255,0.08);cursor:pointer}
-    .photo-empty{aspect-ratio:1;border-radius:14px;border:1px dashed rgba(255,255,255,0.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:12px;cursor:pointer;-webkit-tap-highlight-color:transparent}
-    .photo-empty span{font-size:28px}
-    #photo-input{display:none}
+/* REMINDERS */
+.rem-card{border-radius:18px;background:rgba(255,255,255,.04);border:1px solid var(–border);overflow:hidden;margin-bottom:10px}
+.rem-hdr{padding:13px 16px;font-family:‘Playfair Display’,serif;font-size:17px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.06)}
+.rem-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.04);gap:10px}
+.rem-row:last-child{border-bottom:none}
+.rem-info{flex:1}
+.rem-name{font-size:13px;font-weight:600;margin-bottom:3px}
+.rem-time{font-size:12px;color:var(–muted)}
+.tinput{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:7px;color:white;font-family:‘DM Sans’,sans-serif;font-size:12px;padding:5px 9px;outline:none;width:76px;text-align:center}
+.tog{width:42px;height:24px;border-radius:99px;border:none;cursor:pointer;position:relative;transition:background .25s;flex-shrink:0}
+.tog.on{background:var(–pc)}
+.tog.off{background:rgba(255,255,255,.12)}
+.tog::after{content:’’;position:absolute;top:2px;width:20px;height:20px;border-radius:50%;background:white;transition:left .2s}
+.tog.on::after{left:20px}
+.tog.off::after{left:2px}
+.ios-note{padding:11px 13px;border-radius:12px;background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.2);font-size:11px;color:rgba(255,255,255,.55);line-height:1.5;margin-bottom:10px}
+.ios-note strong{color:#ffd166;display:block;margin-bottom:3px}
 
-    /* Lightbox */
-    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:200;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px}
-    .lightbox.open{display:flex}
-    .lightbox img{max-width:92vw;max-height:75vh;border-radius:16px;object-fit:contain}
-    .lightbox-close{padding:10px 24px;border-radius:50px;border:1px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.08);color:white;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer}
-    .lightbox-delete{padding:10px 24px;border-radius:50px;border:1px solid rgba(255,80,80,0.3);background:rgba(255,80,80,0.1);color:#ff6b6b;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer}
+/* BADGE */
+.badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:99px;text-transform:uppercase;letter-spacing:.07em;margin-left:6px;vertical-align:middle}
+.badge.past{background:rgba(255,255,255,.1);color:var(–muted)}
+.badge.cur{background:rgba(168,224,99,.2);color:var(–pc)}
+.badge.fut{background:rgba(255,255,255,.05);color:rgba(255,255,255,.2)}
 
-    /* ===== ERINNERUNGEN ===== */
-    .reminder-card{border-radius:20px;background:var(--card);border:1px solid rgba(255,255,255,0.08);overflow:hidden;margin-bottom:12px}
-    .reminder-header{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);font-family:'Playfair Display',serif;font-size:18px;font-weight:700}
-    .reminder-body{padding:14px 18px}
-    .reminder-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
-    .reminder-row:last-child{border-bottom:none}
-    .reminder-info{flex:1}
-    .reminder-name{font-size:14px;font-weight:600;margin-bottom:3px}
-    .reminder-time{font-size:12px;color:var(--muted)}
-    .toggle{width:44px;height:26px;border-radius:99px;border:none;cursor:pointer;position:relative;transition:background 0.25s;flex-shrink:0}
-    .toggle.on{background:var(--phase-color)}
-    .toggle.off{background:rgba(255,255,255,0.12)}
-    .toggle::after{content:'';position:absolute;top:3px;width:20px;height:20px;border-radius:50%;background:white;transition:left 0.25s}
-    .toggle.on::after{left:21px}
-    .toggle.off::after{left:3px}
-    .time-input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:8px;color:white;font-family:'DM Sans',sans-serif;font-size:13px;padding:6px 10px;outline:none;width:80px;text-align:center}
-    .reminder-ios-note{padding:12px;border-radius:12px;background:rgba(255,209,102,0.08);border:1px solid rgba(255,209,102,0.2);font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5;margin-top:12px}
-    .reminder-ios-note strong{color:#ffd166;display:block;margin-bottom:4px}
+/* NAV */
+.nav{display:flex;gap:8px;padding:8px 14px;padding-bottom:max(env(safe-area-inset-bottom),12px);flex-shrink:0}
+.nbtn{flex:1;padding:13px;border-radius:14px;font-family:‘DM Sans’,sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.nbtn.prev{border:1px solid var(–border);background:rgba(255,255,255,.04);color:var(–muted)}
+.nbtn.next{border:1px solid rgba(168,224,99,.35);background:rgba(168,224,99,.14);color:var(–pc)}
+.nbtn:disabled{opacity:.3;cursor:default}
 
-    /* Countdown */
-    .countdown-card{border-radius:20px;background:color-mix(in srgb,var(--phase-color) 8%,transparent);border:1px solid color-mix(in srgb,var(--phase-color) 25%,transparent);padding:20px;margin-bottom:12px;text-align:center}
-    .countdown-label{font-size:11px;color:var(--phase-color);text-transform:uppercase;letter-spacing:0.12em;font-weight:700;margin-bottom:8px}
-    .countdown-days{font-family:'Playfair Display',serif;font-size:56px;font-weight:700;color:var(--phase-color);line-height:1}
-    .countdown-sub{font-size:13px;color:var(--muted);margin-top:6px}
-    .countdown-date{font-size:14px;color:var(--text);margin-top:4px;font-weight:600}
-  </style>
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(20,35,20,.96);border:1px solid rgba(168,224,99,.3);color:#a8e063;padding:9px 18px;border-radius:50px;font-size:13px;font-weight:500;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;pointer-events:none}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+
 </head>
 <body>
 
-<div id="onboard">
-  <div class="ob-emoji">🌌</div>
+<div id="ob">
+  <div class="ob-icon">🌌</div>
   <div class="ob-title">Grow Tracker</div>
   <div class="ob-sub">Wann hast du deinen Samen eingepflanzt?</div>
-  <div class="ob-label">Startdatum</div>
-  <input class="ob-input" type="date" id="start-input"/>
-  <button class="ob-btn" onclick="setStart()">Los geht's 🌱</button>
+  <div class="ob-lbl">Startdatum</div>
+  <input type="date" id="date-in">
+  <button id="go-btn">Los gehts 🌱</button>
 </div>
 
 <div id="app" style="display:none">
-  <div id="glow"></div>
-
-  <div class="header">
-    <div class="header-meta">Auto Orion F1 · Royal Queen Seeds</div>
-    <div class="header-row">
-      <div class="header-title">🌌 Grow Tracker</div>
-      <div style="text-align:right">
-        <div class="header-date" id="header-week"></div>
-        <div class="header-harvest" id="header-harvest"></div>
+  <div class="hdr">
+    <div class="hdr-meta">Auto Orion F1 &middot; Royal Queen Seeds</div>
+    <div class="hdr-row">
+      <div class="hdr-title">🌌 Grow Tracker</div>
+      <div class="hdr-right">
+        <div class="hdr-week" id="hdr-week" style="color:#a8e063"></div>
+        <div class="hdr-harvest" id="hdr-harvest"></div>
       </div>
     </div>
   </div>
 
-  <div class="progress-wrap">
-    <div class="progress-labels">
-      <span id="prog-start">Tag 1</span>
-      <span id="prog-label" style="color:var(--phase-color)"></span>
-      <span>~Tag 70</span>
+  <div class="prog">
+    <div class="prog-lbls">
+      <span>Tag 1</span>
+      <span id="prog-lbl" style="color:#a8e063"></span>
+      <span>Tag 70</span>
     </div>
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progress-fill"></div></div>
+    <div class="prog-bg"><div class="prog-fill" id="prog-fill"></div></div>
   </div>
 
-  <!-- TAB BAR -->
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('plan')" id="tab-plan"><span>📋</span>Plan</button>
-    <button class="tab-btn" onclick="switchTab('calc')" id="tab-calc"><span>🧮</span>Rechner</button>
-    <button class="tab-btn" onclick="switchTab('photos')" id="tab-photos"><span>📸</span>Fotos</button>
-    <button class="tab-btn" onclick="switchTab('remind')" id="tab-remind"><span>🔔</span>Alarm</button>
+  <div class="tabs">
+    <button class="tab on" id="t-plan" onclick="goTab('plan')"><span class="tab-ic">📋</span>Plan</button>
+    <button class="tab" id="t-calc" onclick="goTab('calc')"><span class="tab-ic">🧮</span>Rechner</button>
+    <button class="tab" id="t-photos" onclick="goTab('photos')"><span class="tab-ic">📸</span>Fotos</button>
+    <button class="tab" id="t-remind" onclick="goTab('remind')"><span class="tab-ic">🔔</span>Alarm</button>
   </div>
 
-  <!-- WEEK SCROLL (only for plan/photos) -->
-  <div class="week-scroll" id="week-scroll"></div>
+  <div class="wbar" id="wbar"></div>
 
-  <!-- ===== PLAN PANEL ===== -->
-  <div class="panel active" id="panel-plan">
+  <div class="panel on" id="p-plan">
     <div class="card">
-      <div class="card-header">
-        <div class="card-icon" id="card-icon"></div>
+      <div class="card-hdr">
+        <div class="card-ic" id="p-icon"></div>
         <div>
-          <div class="card-week" id="card-week-label"></div>
-          <div class="card-title">
-            <span id="card-title-text"></span>
-            <span class="badge" id="card-badge"></span>
+          <div class="card-wk" id="p-wk"></div>
+          <div class="card-nm">
+            <span id="p-nm"></span>
+            <span class="badge" id="p-badge"></span>
           </div>
-          <div class="card-dates" id="card-dates"></div>
+          <div class="card-dt" id="p-dt"></div>
         </div>
       </div>
-      <div class="card-body" id="card-body"></div>
+      <div class="card-bdy" id="p-rows"></div>
     </div>
-
-    <div class="tips-card">
-      <div class="tips-header">💬 Grow Tipps</div>
-      <div id="tips-body"></div>
+    <div class="tips"><div class="tips-hdr">💬 Grow Tipps</div><div id="p-tips"></div></div>
+    <div class="checks">
+      <div class="checks-hdr">Checkliste Woche <span id="p-chknum"></span></div>
+      <div id="p-checks"></div>
     </div>
-
-    <div class="check-card">
-      <div class="check-header">✅ Checkliste Woche <span id="check-week-num"></span></div>
-      <div id="check-body"></div>
-    </div>
-
     <div class="notes-wrap">
-      <div class="section-label">📝 Notizen — Woche <span id="note-week-label"></span></div>
-      <textarea class="notes-input" id="notes-input" placeholder="Beobachtungen, pH-Wert, Auffälligkeiten..."></textarea>
-      <button class="action-btn full" onclick="saveNote()">✓ Notiz speichern</button>
+      <div class="sec-lbl">Notizen Woche <span id="p-notenum"></span></div>
+      <textarea class="ntxt" id="p-note" placeholder="Beobachtungen, pH, Auffaelligkeiten..."></textarea>
+      <button class="sbtn full" onclick="saveNote()">Notiz speichern</button>
     </div>
   </div>
 
-  <!-- ===== RECHNER PANEL ===== -->
-  <div class="panel" id="panel-calc">
-    <div class="countdown-card" id="countdown-card">
-      <div class="countdown-label">⏳ Tage bis zur Ernte</div>
-      <div class="countdown-days" id="countdown-days">–</div>
-      <div class="countdown-sub">Geschätzter Erntetermin</div>
-      <div class="countdown-date" id="countdown-date-text"></div>
+  <div class="panel" id="p-calc">
+    <div class="cdown">
+      <div class="cdown-lbl">Tage bis zur Ernte</div>
+      <div class="cdown-num" id="c-days">-</div>
+      <div class="cdown-sub">Geschaetzter Erntetermin</div>
+      <div class="cdown-date" id="c-date"></div>
     </div>
-
     <div class="calc-card">
-      <div class="calc-header">
-        🧮 Dünger-Rechner
-        <div class="calc-sub">Aktuelle Woche: <span id="calc-week-name"></span></div>
+      <div class="calc-hdr">
+        <div class="calc-title">Duenger Rechner</div>
+        <div class="calc-sub" id="c-wkname"></div>
       </div>
-      <div class="calc-body">
-        <div class="calc-input-row">
-          <input class="calc-input" type="number" id="calc-liters" value="1" min="0.1" max="30" step="0.1" oninput="calcNutrients()"/>
+      <div class="calc-bdy">
+        <div class="calc-inp-row">
+          <input class="calc-inp" type="number" id="c-liters" value="1" min="0.1" max="30" step="0.1" oninput="calcNuts()">
           <div class="calc-unit">Liter<br>Wasser</div>
         </div>
-        <div class="calc-result" id="calc-result"></div>
-        <div class="calc-note" id="calc-note"></div>
+        <div id="c-result"></div>
+        <div class="calc-note" id="c-note"></div>
       </div>
     </div>
   </div>
 
-  <!-- ===== FOTOS PANEL ===== -->
-  <div class="panel" id="panel-photos">
-    <div class="photo-week-header">
-      <div class="photo-week-title">📸 Woche <span id="photo-week-num">1</span></div>
-      <button class="photo-add-btn" onclick="document.getElementById('photo-input').click()">+</button>
+  <div class="panel" id="p-photos">
+    <div class="photo-hdr">
+      <div class="photo-title">Fotos Woche <span id="ph-num">1</span></div>
+      <button class="add-btn" onclick="document.getElementById('finput').click()">+</button>
     </div>
-    <div class="photo-grid" id="photo-grid"></div>
-    <input type="file" id="photo-input" accept="image/*" capture="camera" multiple onchange="addPhotos(this)"/>
-    <div class="section-label" style="margin-top:4px">Alle Wochen</div>
-    <div id="all-weeks-photos"></div>
+    <div class="pgrid" id="ph-grid"></div>
+    <input type="file" id="finput" accept="image/*" multiple>
+    <div class="sec-lbl" style="margin-top:4px">Alle Wochen</div>
+    <div id="ph-all"></div>
   </div>
 
-  <!-- ===== ERINNERUNGEN PANEL ===== -->
-  <div class="panel" id="panel-remind">
-    <div class="reminder-card">
-      <div class="reminder-header">🔔 Gieß-Erinnerungen</div>
-      <div class="reminder-body" id="reminder-body"></div>
+  <div class="panel" id="p-remind">
+    <div class="ios-note">
+      <strong>iPhone Hinweis</strong>
+      Push-Benachrichtigungen funktionieren nur wenn die App zum Home-Bildschirm hinzugefuegt wurde (iOS 16.4+).
     </div>
-    <div class="reminder-card">
-      <div class="reminder-header">📋 Dünger-Erinnerungen</div>
-      <div class="reminder-body" id="duenger-body"></div>
+    <div class="rem-card">
+      <div class="rem-hdr">Giess Erinnerungen</div>
+      <div id="r-giess"></div>
     </div>
-    <div class="reminder-ios-note">
-      <strong>📱 Hinweis für iPhone</strong>
-      Push-Benachrichtigungen funktionieren nur wenn die App zum Home-Bildschirm hinzugefügt wurde (iOS 16.4+). Nach dem Aktivieren erscheint ein Berechtigungs-Dialog.
+    <div class="rem-card">
+      <div class="rem-hdr">Duenger Erinnerungen</div>
+      <div id="r-dung"></div>
     </div>
   </div>
 
-  <div class="nav" id="main-nav">
-    <button class="nav-btn prev" id="btn-prev" onclick="navigate(-1)">← Zurück</button>
-    <button class="nav-btn next" id="btn-next" onclick="navigate(1)">Weiter →</button>
+  <div class="nav" id="nav">
+    <button class="nbtn prev" id="n-prev" onclick="nav(-1)">Zurueck</button>
+    <button class="nbtn next" id="n-next" onclick="nav(1)">Weiter</button>
   </div>
 </div>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lightbox">
-  <img id="lightbox-img" src="" alt=""/>
-  <div style="display:flex;gap:10px">
-    <button class="lightbox-delete" onclick="deletePhoto()">🗑 Löschen</button>
-    <button class="lightbox-close" onclick="closeLightbox()">✕ Schließen</button>
+<div id="lb">
+  <img id="lb-img" src="" alt="">
+  <div class="lb-btns">
+    <button class="lb-del" onclick="delPhoto()">Loeschen</button>
+    <button class="lb-close" onclick="closeLb()">Schliessen</button>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div id="toast"></div>
 
 <script>
-const phases = [
-  {week:"W1",label:"Keimling",emoji:"🌱",color:"#a8e063",
+var P = [
+  {w:"W1",n:"Keimling",e:"🌱",c:"#a8e063",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"15%  •  ~30W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"65 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"GESCHLOSSEN ⛔"},
-    {i:"🌿",l:"Bio·Grow",v:"❌ Kein Dünger"},
-    {i:"🌸",l:"Bio·Bloom",v:"❌ Kein Dünger"},
-    {i:"⭐",l:"Top·Max",v:"❌ Kein Dünger"},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"100–200 ml  •  alle 2–3 Tage"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Nur pH-Wasser 6.2–6.5"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"65–70%"},
-    {i:"🌡️",l:"Temperatur",v:"22–26°C"},
+    {i:"💡",l:"SanLight",v:"15% / 30W",hl:1},
+    {i:"📏",l:"Abstand",v:"65 cm"},
+    {i:"🌿",l:"Bio Grow",v:"Kein Dunger"},
+    {i:"🌸",l:"Bio Bloom",v:"Kein Dunger"},
+    {i:"⭐",l:"Top Max",v:"Kein Dunger"},
+    {i:"💧",l:"Giessen",v:"100-200 ml alle 2-3 Tage"},
+    {i:"🧪",l:"Mix pro Liter",v:"Nur pH Wasser 6.2-6.5"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"65-70%"},
+    {i:"🌡",l:"Temperatur",v:"22-26 Grad"}
    ],
-   nutrients:{grow:0,bloom:0,topmax:0},
+   nt:{g:0,b:0,t:0},
    tips:[
-    {i:"🌱",t:"BioBizz Light Mix hat genug Voraktivierung — kein Dünger nötig in den ersten Wochen."},
-    {i:"💧",t:"Fingertipp-Test: Erde an Finger klebt? Noch Feuchtigkeit da — noch nicht gießen."},
-    {i:"🌡️",t:"Temperaturunterschied Tag/Nacht unter 4°C halten — verhindert Stress beim Keimling."},
-    {i:"🔆",t:"SanLight Sunrise/Sunset Funktion aktivieren — je 30 Min sanftes Hoch- und Runterdimmen."},
-    {i:"🚫",t:"Kein Anfassen, kein Stress — der Keimling braucht jetzt vor allem Ruhe zum Anwurzeln."},
+    {i:"🌱",t:"BioBizz Light Mix hat genug Voraktivierung - kein Dunger noetig die ersten Wochen."},
+    {i:"💧",t:"Fingertipp Test: Erde klebt am Finger? Noch genug Feuchtigkeit - nicht giessen."},
+    {i:"🌡",t:"Temperaturunterschied Tag/Nacht unter 4 Grad halten - verhindert Stress."},
+    {i:"🔆",t:"SanLight Sunrise/Sunset aktivieren - je 30 Min sanftes Hoch und Runterdimmen."},
+    {i:"🚫",t:"Kein Anfassen, kein Stress - der Keimling braucht jetzt Ruhe zum Anwurzeln."}
    ],
-   checks:["Samen eingepflanzt","Substrat vorbefeuchtet","Lampe auf 15% gedimmt","Lampe auf 65cm Abstand","Temperatur gecheckt (22–26°C)","Luftfeuchtigkeit gecheckt (65–70%)"],
+   chks:["Samen eingepflanzt","Substrat vorbefeuchtet","Lampe auf 15% gedimmt","Lampe auf 65cm Abstand","Temperatur gecheckt","Luftfeuchtigkeit gecheckt"]
   },
-  {week:"W2",label:"Keimling",emoji:"🌱",color:"#a8e063",
+  {w:"W2",n:"Keimling",e:"🌱",c:"#a8e063",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"20%  •  ~40W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"60 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"GESCHLOSSEN ⛔"},
-    {i:"🌿",l:"Bio·Grow",v:"❌ Kein Dünger"},
-    {i:"🌸",l:"Bio·Bloom",v:"❌ Kein Dünger"},
-    {i:"⭐",l:"Top·Max",v:"❌ Kein Dünger"},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"100–200 ml  •  alle 2–3 Tage"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Nur pH-Wasser 6.2–6.5"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"65–70%"},
-    {i:"🌡️",l:"Temperatur",v:"22–26°C"},
+    {i:"💡",l:"SanLight",v:"20% / 40W",hl:1},
+    {i:"📏",l:"Abstand",v:"60 cm"},
+    {i:"🌿",l:"Bio Grow",v:"Kein Dunger"},
+    {i:"🌸",l:"Bio Bloom",v:"Kein Dunger"},
+    {i:"⭐",l:"Top Max",v:"Kein Dunger"},
+    {i:"💧",l:"Giessen",v:"100-200 ml alle 2-3 Tage"},
+    {i:"🧪",l:"Mix pro Liter",v:"Nur pH Wasser 6.2-6.5"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"65-70%"},
+    {i:"🌡",l:"Temperatur",v:"22-26 Grad"}
    ],
-   nutrients:{grow:0,bloom:0,topmax:0},
+   nt:{g:0,b:0,t:0},
    tips:[
-    {i:"👀",t:"Wurzeln entwickeln sich — einfach beobachten, nicht eingreifen."},
-    {i:"💡",t:"Licht auf 20% erhöhen — Keimling kann jetzt etwas mehr vertragen."},
-    {i:"🍃",t:"Erste echte Blätter erscheinen — gutes Zeichen für gesundes Wachstum."},
-    {i:"💧",t:"Nur um den Stängel gießen, nicht den ganzen Topf — Staunässe vermeiden."},
-    {i:"🌬️",t:"Leichte Luftbewegung stärkt den Stängel — Fan auf niedrigster Stufe indirekt."},
+    {i:"👀",t:"Wurzeln entwickeln sich - einfach beobachten, nicht eingreifen."},
+    {i:"💡",t:"Licht auf 20% erhoehen - Keimling kann jetzt etwas mehr vertragen."},
+    {i:"🍃",t:"Erste echte Blaetter erscheinen - gutes Zeichen fuer gesundes Wachstum."},
+    {i:"💧",t:"Nur um den Staengel giessen - Staunaesse vermeiden im 15L Topf."},
+    {i:"🌬",t:"Leichte Luftbewegung staerkt den Staengel - Fan auf niedrigster Stufe."}
    ],
-   checks:["Licht auf 20% erhöht","Abstand auf 60cm","Keimling sieht gesund aus","Keine Anzeichen von Schimmel","Erde nicht zu nass"],
+   chks:["Licht auf 20%","Abstand auf 60cm","Keimling sieht gesund aus","Keine Anzeichen von Schimmel","Erde nicht zu nass"]
   },
-  {week:"W3",label:"Early Veg",emoji:"🌿",color:"#56ab2f",
+  {w:"W3",n:"Early Veg",e:"🌿",c:"#56ab2f",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"30%  •  ~60W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"50 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"GESCHLOSSEN ⛔"},
-    {i:"🌿",l:"Bio·Grow",v:"❌ Noch kein Dünger"},
-    {i:"🌸",l:"Bio·Bloom",v:"❌ Kein Dünger"},
-    {i:"⭐",l:"Top·Max",v:"❌ Kein Dünger"},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"300–500 ml  •  alle 2–3 Tage"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Nur pH-Wasser 6.2–6.5"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"60–65%"},
-    {i:"🌡️",l:"Temperatur",v:"22–26°C"},
+    {i:"💡",l:"SanLight",v:"30% / 60W",hl:1},
+    {i:"📏",l:"Abstand",v:"50 cm"},
+    {i:"🌿",l:"Bio Grow",v:"Noch kein Dunger"},
+    {i:"🌸",l:"Bio Bloom",v:"Kein Dunger"},
+    {i:"⭐",l:"Top Max",v:"Kein Dunger"},
+    {i:"💧",l:"Giessen",v:"300-500 ml alle 2-3 Tage"},
+    {i:"🧪",l:"Mix pro Liter",v:"Nur pH Wasser 6.2-6.5"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"60-65%"},
+    {i:"🌡",l:"Temperatur",v:"22-26 Grad"}
    ],
-   nutrients:{grow:0,bloom:0,topmax:0},
+   nt:{g:0,b:0,t:0},
    tips:[
-    {i:"🌿",t:"Ventil noch geschlossen — erst öffnen wenn Pflanze aktiv wächst (W4)."},
-    {i:"🔆",t:"Licht auf 30% = ~200–300 µmol/s — SANlight Empfehlung für Early Veg."},
-    {i:"🍃",t:"3–4 Blattpaare sichtbar? Pflanze ist bereit für die nächste Phase."},
-    {i:"💚",t:"Sattes Grün = alles ok. Hellgrün könnte Stickstoffmangel andeuten."},
-    {i:"📏",t:"Wachstum messen und notieren — gut als Vergleichswert für spätere Wochen."},
+    {i:"🌿",t:"Manuell giessen bis Pflanze aktiv waechst - dann ab W4 mit Dungung beginnen."},
+    {i:"🔆",t:"Licht auf 30% = 200-300 µmol/s - SANlight Empfehlung fuer Early Veg."},
+    {i:"🍃",t:"3-4 Blattpaare sichtbar? Pflanze ist bereit fuer die naechste Phase."},
+    {i:"💚",t:"Sattes Gruen = alles ok. Hellgruen koennte Stickstoffmangel andeuten."},
+    {i:"📏",t:"Wachstum messen und notieren - gut als Vergleichswert fuer spaeter."}
    ],
-   checks:["Licht auf 30%","Abstand auf 50cm","3–4 Blattpaare sichtbar","Pflanze sieht kräftig aus","Keine Mängel erkennbar"],
+   chks:["Licht auf 30%","Abstand auf 50cm","3-4 Blattpaare sichtbar","Pflanze sieht kraeftig aus","Keine Maengel erkennbar"]
   },
-  {week:"W4",label:"Veg",emoji:"🌿",color:"#38a846",
+  {w:"W4",n:"Veg",e:"🌿",c:"#38a846",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"40%  •  ~80W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"40 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"Manuell gießen"},
-    {i:"🌿",l:"Bio·Grow",v:"1 ml/L",h:true},
-    {i:"🌸",l:"Bio·Bloom",v:"❌ Noch nicht"},
-    {i:"⭐",l:"Top·Max",v:"❌ Noch nicht"},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"500–700 ml  •  alle 2 Tage"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Bio·Grow 1 ml/L  •  2–3x/Woche düngen"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"55–60%"},
-    {i:"🌡️",l:"Temperatur",v:"22–26°C"},
+    {i:"💡",l:"SanLight",v:"40% / 80W",hl:1},
+    {i:"📏",l:"Abstand",v:"40 cm"},
+    {i:"🌿",l:"Bio Grow",v:"1 ml/L",hl:1},
+    {i:"🌸",l:"Bio Bloom",v:"Noch nicht"},
+    {i:"⭐",l:"Top Max",v:"Noch nicht"},
+    {i:"💧",l:"Giessen",v:"500-700 ml alle 2 Tage"},
+    {i:"🧪",l:"Mix pro Liter",v:"Bio Grow 1ml - 2-3x pro Woche"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"55-60%"},
+    {i:"🌡",l:"Temperatur",v:"22-26 Grad"}
    ],
-   nutrients:{grow:1,bloom:0,topmax:0},
+   nt:{g:1,b:0,t:0},
    tips:[
-    {i:"⚗️",t:"pH immer NACH dem Mischen einstellen — Reihenfolge: Wasser → Dünger → pH messen → anpassen."},
-    {i:"🌿",t:"Bio·Grow liefert Stickstoff für starkes vegetatives Wachstum."},
-    {i:"💧",t:"Im Wechsel düngen: 1x Düngerwasser, 1x reines Wasser — verhindert Salz-Aufbau."},
-    {i:"🔧",t:"Gießen bis leichter Ablauf unten — bestätigt gleichmäßige Durchfeuchtung."},
-    {i:"📏",t:"Lift-Test: leerer Topf vs voller Topf — so erkennst du wann gegossen werden muss."},
+    {i:"⚗",t:"pH immer NACH dem Mischen einstellen - Wasser, dann Dunger, dann pH messen."},
+    {i:"🌿",t:"Bio Grow liefert Stickstoff fuer starkes vegetatives Wachstum."},
+    {i:"💧",t:"Im Wechsel: 1x Dungerwasser, 1x reines Wasser - verhindert Salzaufbau."},
+    {i:"🔧",t:"Giessen bis leichter Ablauf unten - bestaetigt gleichmaessige Durchfeuchtung."},
+    {i:"📏",t:"Lift Test: leerer vs voller Topf - so erkennst du wann gegossen werden muss."}
    ],
-   checks:["Licht auf 40%","Abstand auf 40cm","Bio·Grow auf 1ml/L","pH auf 6.2–6.5","Erster Düngerguss durchgeführt"],
+   chks:["Licht auf 40%","Abstand auf 40cm","Bio Grow 1ml/L","pH auf 6.2-6.5","Erster Dungerguss"]
   },
-  {week:"W5",label:"Veg",emoji:"🌿",color:"#38a846",
+  {w:"W5",n:"Veg",e:"🌿",c:"#38a846",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"50%  •  ~100W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"35 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"Manuell gießen"},
-    {i:"🌿",l:"Bio·Grow",v:"2 ml/L",h:true},
-    {i:"🌸",l:"Bio·Bloom",v:"❌ Noch nicht"},
-    {i:"⭐",l:"Top·Max",v:"❌ Noch nicht"},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"600–800 ml  •  alle 2 Tage"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Bio·Grow 2 ml/L  •  2–3x/Woche"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"55–60%"},
-    {i:"🌡️",l:"Temperatur",v:"22–26°C"},
+    {i:"💡",l:"SanLight",v:"50% / 100W",hl:1},
+    {i:"📏",l:"Abstand",v:"35 cm"},
+    {i:"🌿",l:"Bio Grow",v:"2 ml/L",hl:1},
+    {i:"🌸",l:"Bio Bloom",v:"Noch nicht"},
+    {i:"⭐",l:"Top Max",v:"Noch nicht"},
+    {i:"💧",l:"Giessen",v:"600-800 ml alle 2 Tage"},
+    {i:"🧪",l:"Mix pro Liter",v:"Bio Grow 2ml - 2-3x pro Woche"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"55-60%"},
+    {i:"🌡",l:"Temperatur",v:"22-26 Grad"}
    ],
-   nutrients:{grow:2,bloom:0,topmax:0},
+   nt:{g:2,b:0,t:0},
    tips:[
-    {i:"🌿",t:"LST jetzt! Äste mit Bindedraht nach außen — breiterer Canopy = mehr Ertrag."},
-    {i:"✂️",t:"Kein Toppen bei Autos! LST ist die einzige empfohlene Trainingsmethode."},
-    {i:"💡",t:"50% = ~500 µmol/s — perfekt für aktive Veg Phase laut SANlight."},
-    {i:"🌱",t:"Bio·Grow auf 2ml erhöhen — Pflanze hat jetzt mehr Hunger nach Stickstoff."},
-    {i:"📐",t:"Pflanzenhöhe auf 20–30cm optimal für Orion F1 Indica-Wuchs."},
+    {i:"🌿",t:"LST jetzt! Aeste mit Bindedraht nach aussen biegen - breiterer Canopy, mehr Ertrag."},
+    {i:"✂",t:"Kein Toppen bei Autos! LST ist die einzige empfohlene Trainingsmethode."},
+    {i:"💡",t:"50% = ca 500 µmol/s - perfekt fuer aktive Veg laut SANlight Herstellerangabe."},
+    {i:"🌱",t:"Bio Grow auf 2ml erhoehen - Pflanze hat jetzt mehr Hunger nach Stickstoff."},
+    {i:"📐",t:"Pflanzenhoehe 20-30cm optimal fuer Orion F1 Indica Wuchs."}
    ],
-   checks:["Licht auf 50%","Abstand auf 35cm","Bio·Grow auf 2ml/L","LST durchgeführt","pH gecheckt"],
+   chks:["Licht auf 50%","Abstand auf 35cm","Bio Grow auf 2ml/L","LST durchgefuehrt","pH gecheckt"]
   },
-  {week:"W6",label:"Pre-Flower",emoji:"🌸",color:"#f7971e",
+  {w:"W6",n:"Pre-Flower",e:"🌸",c:"#f7971e",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"60%  •  ~120W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"30 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"Manuell gießen"},
-    {i:"🌿",l:"Bio·Grow",v:"1 ml/L — reduzieren"},
-    {i:"🌸",l:"Bio·Bloom",v:"1 ml/L — einführen",h:true},
-    {i:"⭐",l:"Top·Max",v:"0.5 ml/L — einführen"},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"800 ml – 1 L  •  täglich bis alle 2 Tage"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Grow 1ml + Bloom 1ml + TopMax 0.5ml"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"50–55%"},
-    {i:"🌡️",l:"Temperatur",v:"20–25°C"},
+    {i:"💡",l:"SanLight",v:"60% / 120W",hl:1},
+    {i:"📏",l:"Abstand",v:"30 cm"},
+    {i:"🌿",l:"Bio Grow",v:"1 ml/L - reduzieren"},
+    {i:"🌸",l:"Bio Bloom",v:"1 ml/L - einfuehren",hl:1},
+    {i:"⭐",l:"Top Max",v:"0.5 ml/L - einfuehren"},
+    {i:"💧",l:"Giessen",v:"800ml - 1L taeglich bis alle 2 Tage"},
+    {i:"🧪",l:"Mix pro Liter",v:"Grow 1ml + Bloom 1ml + TopMax 0.5ml"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"50-55%"},
+    {i:"🌡",l:"Temperatur",v:"20-25 Grad"}
    ],
-   nutrients:{grow:1,bloom:1,topmax:0.5},
+   nt:{g:1,b:1,t:0.5},
    tips:[
-    {i:"🌸",t:"Blüte startet automatisch nach ~30 Tagen! Erste weiße Pistils sichtbar."},
-    {i:"🔄",t:"Übergang: Bio·Grow reduzieren, Bio·Bloom einführen — nie beide auf Maximum."},
-    {i:"💨",t:"Luftfeuchtigkeit jetzt auf 50–55% senken — Blüte braucht trockenere Luft."},
-    {i:"📏",t:"Abstand jetzt fix auf 30cm — SANlight Empfehlung für alle Blütephasen."},
-    {i:"🔆",t:"60% = ~600 µmol/s — Pre-Flower braucht mehr Licht als Veg."},
+    {i:"🌸",t:"Bluete startet automatisch nach 30 Tagen! Erste weisse Pistils werden sichtbar."},
+    {i:"🔄",t:"Uebergang: Bio Grow reduzieren, Bio Bloom einfuehren - nie beide auf Maximum."},
+    {i:"💨",t:"Luftfeuchtigkeit auf 50-55% senken - Bluete braucht trockenere Luft."},
+    {i:"📏",t:"Abstand jetzt fix auf 30cm - SANlight Empfehlung fuer alle Bluetephasen."},
+    {i:"🔆",t:"60% = ca 600 µmol/s - Pre-Flower braucht mehr Licht als Veg."}
    ],
-   checks:["Licht auf 60%","Abstand auf 30cm fixiert","Grow reduziert auf 1ml","Bloom eingeführt 1ml","TopMax 0.5ml","Erste Pistils sichtbar?","Luftfeuchtigkeit gesenkt"],
+   chks:["Licht auf 60%","Abstand auf 30cm","Grow auf 1ml","Bloom 1ml einfuehren","TopMax 0.5ml","Pistils sichtbar?","Luftfeuchtigkeit gesenkt"]
   },
-  {week:"W7",label:"Blüte BW1",emoji:"🌸",color:"#f05f57",
+  {w:"W7",n:"Bluete BW1",e:"🌸",c:"#f05f57",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"70%  •  ~140W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"30 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"Manuell gießen"},
-    {i:"🌿",l:"Bio·Grow",v:"0.5 ml/L — letzte Woche"},
-    {i:"🌸",l:"Bio·Bloom",v:"2 ml/L",h:true},
-    {i:"⭐",l:"Top·Max",v:"1 ml/L"},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"1 – 1.2 L  •  täglich"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Grow 0.5ml + Bloom 2ml + TopMax 1ml"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"45–50%"},
-    {i:"🌡️",l:"Temperatur",v:"20–24°C"},
+    {i:"💡",l:"SanLight",v:"70% / 140W",hl:1},
+    {i:"📏",l:"Abstand",v:"30 cm"},
+    {i:"🌿",l:"Bio Grow",v:"0.5 ml/L - letzte Woche"},
+    {i:"🌸",l:"Bio Bloom",v:"2 ml/L",hl:1},
+    {i:"⭐",l:"Top Max",v:"1 ml/L"},
+    {i:"💧",l:"Giessen",v:"1.0 - 1.2 L taeglich"},
+    {i:"🧪",l:"Mix pro Liter",v:"Grow 0.5ml + Bloom 2ml + TopMax 1ml"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"45-50%"},
+    {i:"🌡",l:"Temperatur",v:"20-24 Grad"}
    ],
-   nutrients:{grow:0.5,bloom:2,topmax:1},
+   nt:{g:0.5,b:2,t:1},
    tips:[
-    {i:"✂️",t:"Defoliation! Untere Blätter ohne Licht entfernen — verbessert Luftzirkulation."},
-    {i:"🌸",t:"Je mehr Licht auf die Blütenansätze, desto dichter werden die Buds."},
-    {i:"⚠️",t:"Orion F1 bildet sehr dichte Buds — Luftzirkulation direkt an den Colas checken!"},
-    {i:"👃",t:"Geruch nimmt zu — Aktivkohlefilter und Abluft auf volle Leistung."},
-    {i:"💧",t:"Pflanze trinkt jetzt mehr — täglich gießen, Lift-Test nutzen."},
+    {i:"✂",t:"Defoliation! Untere Blaetter ohne Licht entfernen - verbessert Luftzirkulation."},
+    {i:"🌸",t:"Je mehr Licht auf die Bluetenansaetze, desto dichter werden die Buds."},
+    {i:"⚠",t:"Orion F1 bildet sehr dichte Buds - Luftzirkulation direkt an den Colas checken!"},
+    {i:"👃",t:"Geruch nimmt zu - Aktivkohlefilter und Abluft auf volle Leistung."},
+    {i:"💧",t:"Pflanze trinkt jetzt mehr - taeglich giessen, Lift Test nutzen."}
    ],
-   checks:["Licht auf 70%","Bloom auf 2ml","Defoliation durchgeführt","Luftzirkulation gecheckt","Aktivkohlefilter gecheckt"],
+   chks:["Licht auf 70%","Bloom auf 2ml","Defoliation","Luftzirkulation gecheckt","Aktivkohlefilter gecheckt"]
   },
-  {week:"W8",label:"Blüte BW2",emoji:"🌺",color:"#e73c7e",
+  {w:"W8",n:"Bluete BW2",e:"🌺",c:"#e73c7e",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"80%  •  ~160W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"30 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"Manuell gießen"},
-    {i:"🌿",l:"Bio·Grow",v:"❌ Komplett stoppen"},
-    {i:"🌸",l:"Bio·Bloom",v:"3 ml/L",h:true},
-    {i:"⭐",l:"Top·Max",v:"2 ml/L",h:true},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"1.2 – 1.5 L  •  täglich"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Bloom 3ml + TopMax 2ml — KEIN Grow mehr"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"45–50% ⚠️"},
-    {i:"🌡️",l:"Temperatur",v:"20–24°C"},
+    {i:"💡",l:"SanLight",v:"80% / 160W",hl:1},
+    {i:"📏",l:"Abstand",v:"30 cm"},
+    {i:"🌿",l:"Bio Grow",v:"STOPPEN",dn:1},
+    {i:"🌸",l:"Bio Bloom",v:"3 ml/L",hl:1},
+    {i:"⭐",l:"Top Max",v:"2 ml/L",hl:1},
+    {i:"💧",l:"Giessen",v:"1.2 - 1.5 L taeglich"},
+    {i:"🧪",l:"Mix pro Liter",v:"Bloom 3ml + TopMax 2ml - KEIN Grow"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"45-50% Achtung!"},
+    {i:"🌡",l:"Temperatur",v:"20-24 Grad"}
    ],
-   nutrients:{grow:0,bloom:3,topmax:2},
+   nt:{g:0,b:3,t:2},
    tips:[
-    {i:"🛑",t:"Bio·Grow KOMPLETT stoppen! Stickstoff in Blüte = schlechterer Geschmack."},
-    {i:"⚠️",t:"Botrytis Alarm! Täglich auf Schimmelspuren in den dichten Buds prüfen."},
-    {i:"🔍",t:"Schimmel entsteht von innen — zwischen Buds checken, nicht nur außen."},
-    {i:"💨",t:"Luftfeuchtigkeit unter 50% — notfalls Entfeuchter einsetzen."},
-    {i:"🌡️",t:"5–10°C Tag/Nacht Differenz fördert Terpene und intensiviert das Aroma."},
+    {i:"🛑",t:"Bio Grow KOMPLETT stoppen! Stickstoff in Bluete = schlechterer Geschmack."},
+    {i:"⚠",t:"Botrytis Alarm! Taeglich auf Schimmel in den dichten Buds pruefen."},
+    {i:"🔍",t:"Schimmel entsteht von innen - zwischen Buds checken, nicht nur aussen."},
+    {i:"💨",t:"Luftfeuchtigkeit unter 50% - notfalls Entfeuchter einsetzen."},
+    {i:"🌡",t:"5-10 Grad Tag/Nacht Differenz foerdert Terpene und intensiviert das Aroma."}
    ],
-   checks:["Licht auf 80%","Grow gestoppt ❌","Bloom auf 3ml","TopMax auf 2ml","Auf Botrytis gecheckt","Luftfeuchtigkeit unter 50%"],
+   chks:["Licht auf 80%","Grow gestoppt","Bloom auf 3ml","TopMax auf 2ml","Auf Botrytis gecheckt","Luftfeuchtigkeit unter 50%"]
   },
-  {week:"W9",label:"Blüte BW3",emoji:"🌺",color:"#c0392b",
+  {w:"W9",n:"Bluete BW3",e:"🌺",c:"#c0392b",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"90–100%  •  ~200W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"30 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"Manuell gießen"},
-    {i:"🌿",l:"Bio·Grow",v:"❌ Gestoppt"},
-    {i:"🌸",l:"Bio·Bloom",v:"4 ml/L",h:true},
-    {i:"⭐",l:"Top·Max",v:"2 ml/L",h:true},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"1.2 – 1.5 L  •  täglich"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"Bloom 4ml + TopMax 2ml"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"40–45%"},
-    {i:"🌡️",l:"Temperatur",v:"18–24°C"},
+    {i:"💡",l:"SanLight",v:"90-100% / 200W",hl:1},
+    {i:"📏",l:"Abstand",v:"30 cm"},
+    {i:"🌿",l:"Bio Grow",v:"Gestoppt",dn:1},
+    {i:"🌸",l:"Bio Bloom",v:"4 ml/L",hl:1},
+    {i:"⭐",l:"Top Max",v:"2 ml/L",hl:1},
+    {i:"💧",l:"Giessen",v:"1.2 - 1.5 L taeglich"},
+    {i:"🧪",l:"Mix pro Liter",v:"Bloom 4ml + TopMax 2ml"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"40-45%"},
+    {i:"🌡",l:"Temperatur",v:"18-24 Grad"}
    ],
-   nutrients:{grow:0,bloom:4,topmax:2},
+   nt:{g:0,b:4,t:2},
    tips:[
-    {i:"🔬",t:"Trichome täglich checken! Milchig weiß = Peak THC. Bernstein = Couch-Lock."},
+    {i:"🔬",t:"Trichome taeglich checken! Milchig weiss = Peak THC. Bernstein = Couch Lock."},
     {i:"🎯",t:"Perfekter Erntezeitpunkt: 70% milchige + 30% bernsteinige Trichome."},
-    {i:"💡",t:"SANlight auf 100% = ~940 µmol/s — maximale Lichtausbeute laut Hersteller."},
-    {i:"🌸",t:"Blätter werden langsam gelb — normal in der Spätblüte, kein Mangel."},
-    {i:"📸",t:"Jetzt ist die beste Zeit für Fotos — Buds auf dem Höhepunkt!"},
+    {i:"💡",t:"SANlight auf 100% = ca 940 µmol/s - maximale Lichtausbeute laut Hersteller."},
+    {i:"🌸",t:"Blaetter werden langsam gelb - normal in der Spaetbluete, kein Mangel."},
+    {i:"📸",t:"Jetzt die besten Fotos machen - Buds auf dem Hoehepunkt!"}
    ],
-   checks:["Licht auf 90–100%","Bloom auf 4ml","Trichome gecheckt","Auf Botrytis gecheckt","Luftfeuchtigkeit unter 45%"],
+   chks:["Licht auf 90-100%","Bloom auf 4ml","Trichome gecheckt","Auf Botrytis gecheckt","Luftfeuchtigkeit unter 45%"]
   },
-  {week:"W10",label:"Flush & Ernte",emoji:"✂️",color:"#8e44ad",
+  {w:"W10",n:"Flush + Ernte",e:"✂️",c:"#8e44ad",
    rows:[
-    {i:"💡",l:"SanLight Leistung",v:"100%  •  200W",h:true},
-    {i:"📏",l:"Abstand Lampe → Pflanze",v:"30 cm"},
-    {i:"🚿",l:"Autopot Ventil",v:"Nur klares Wasser"},
-    {i:"🌿",l:"Bio·Grow",v:"❌ KEIN DÜNGER",d:true},
-    {i:"🌸",l:"Bio·Bloom",v:"❌ KEIN DÜNGER",d:true},
-    {i:"⭐",l:"Top·Max",v:"❌ KEIN DÜNGER",d:true},
-    {i:"💧",l:"Gießen — Menge & Häufigkeit",v:"1.5 – 2 L  •  täglich"},
-    {i:"🧪",l:"Düngermix pro Liter",v:"❌ Nur klares Wasser pH 6.0–6.2"},
-    {i:"💨",l:"Luftfeuchtigkeit",v:"40–45%"},
-    {i:"🌡️",l:"Temperatur",v:"18–22°C"},
+    {i:"💡",l:"SanLight",v:"100% / 200W",hl:1},
+    {i:"📏",l:"Abstand",v:"30 cm"},
+    {i:"🌿",l:"Bio Grow",v:"KEIN DUNGER",dn:1},
+    {i:"🌸",l:"Bio Bloom",v:"KEIN DUNGER",dn:1},
+    {i:"⭐",l:"Top Max",v:"KEIN DUNGER",dn:1},
+    {i:"💧",l:"Giessen",v:"1.5 - 2.0 L taeglich"},
+    {i:"🧪",l:"Mix pro Liter",v:"Nur klares Wasser pH 6.0-6.2"},
+    {i:"💨",l:"Luftfeuchtigkeit",v:"40-45%"},
+    {i:"🌡",l:"Temperatur",v:"18-22 Grad"}
    ],
-   nutrients:{grow:0,bloom:0,topmax:0},
+   nt:{g:0,b:0,t:0},
    tips:[
-    {i:"🚿",t:"Flush: 1–2 Wochen nur klares Wasser — spült Nährstoffe für saubereren Smoke aus."},
-    {i:"✂️",t:"Ernte morgens nach der Dunkelphase — Terpene dann am konzentriertesten."},
-    {i:"🌡️",t:"Trocknen bei 15–18°C und 50–55% RH — langsam und schonend, 10–14 Tage."},
-    {i:"🫙",t:"Curing in Mason Jars: täglich 15 Min lüften für 2–4 Wochen — verbessert Geschmack enorm."},
-    {i:"⚖️",t:"Alle 3 Zeichen = bereit: Blätter gelb, Pistils braun, Trichome milchig/bernstein."},
+    {i:"🚿",t:"Flush: 1-2 Wochen nur klares Wasser - spaelt Naehrstoffe fuer saubereren Smoke aus."},
+    {i:"✂",t:"Ernte morgens nach der Dunkelphase - Terpene dann am konzentriertesten."},
+    {i:"🌡",t:"Trocknen bei 15-18 Grad und 50-55% RH - langsam und schonend, 10-14 Tage."},
+    {i:"🫙",t:"Curing in Mason Jars: taeglich 15 Min lueften fuer 2-4 Wochen - verbessert Geschmack."},
+    {i:"⚖",t:"Alle 3 Zeichen = bereit: Blaetter gelb, Pistils braun, Trichome milchig/bernstein."}
    ],
-   checks:["Nur klares Wasser","Kein Dünger mehr","Trichome gecheckt","Pistils >70% braun?","Blätter werden gelb — normal","Schere und Trockennetz bereit"],
-  },
+   chks:["Nur klares Wasser","Kein Dunger mehr","Trichome gecheckt","Pistils 70%+ braun","Blaetter gelb - normal","Schere und Trockennetz bereit"]
+  }
 ];
 
-let current = 0;
-let startDate = null;
-let activeTab = 'plan';
-let lightboxPhotoKey = null;
+var cur = 0;
+var sd = null;
+var activeTab = 'plan';
+var lbKey = null;
+var lbIdx = 0;
 
-// ===== INIT =====
-function setStart() {
-  const val = document.getElementById('start-input').value;
-  if(!val){showToast('Bitte Datum eingeben!');return;}
-  startDate = new Date(val);
-  localStorage.setItem('grow-start', val);
-  document.getElementById('onboard').style.display='none';
-  document.getElementById('app').style.display='flex';
-  current = getCurrentWeek();
-  render();
-  initReminders();
+function d(id){return document.getElementById(id);}
+
+function toast(msg){
+  var t=d('toast');
+  t.textContent=msg;
+  t.className='on';
+  setTimeout(function(){t.className='';},2200);
 }
 
-function getCurrentWeek() {
-  if(!startDate) return 0;
-  const diff = Math.floor((new Date()-startDate)/(1000*60*60*24));
-  return Math.min(Math.max(0,Math.floor(diff/7)),phases.length-1);
+function fmt(date){
+  return date.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});
 }
 
-function getWeekDates(i) {
-  if(!startDate) return '';
-  const s = new Date(startDate); s.setDate(s.getDate()+i*7);
-  const e = new Date(s); e.setDate(e.getDate()+6);
-  return `${fmt(s)} – ${fmt(e)}`;
+function getCurWeek(){
+  if(!sd) return 0;
+  var diff=Math.floor((new Date()-sd)/86400000);
+  return Math.min(Math.max(0,Math.floor(diff/7)),P.length-1);
 }
-
-function fmt(d){return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'});}
 
 function getHarvestDate(){
-  if(!startDate) return '';
-  const h=new Date(startDate); h.setDate(h.getDate()+70);
+  if(!sd) return '';
+  var h=new Date(sd.getTime());
+  h.setDate(h.getDate()+70);
   return h.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
 }
 
 function getDaysLeft(){
-  if(!startDate) return 0;
-  const h=new Date(startDate); h.setDate(h.getDate()+70);
-  return Math.max(0,Math.ceil((h-new Date())/(1000*60*60*24)));
+  if(!sd) return 0;
+  var h=new Date(sd.getTime());
+  h.setDate(h.getDate()+70);
+  return Math.max(0,Math.ceil((h-new Date())/86400000));
 }
 
-function setPhaseColor(c){document.documentElement.style.setProperty('--phase-color',c);}
+function getWeekDates(i){
+  if(!sd) return '';
+  var s=new Date(sd.getTime());
+  s.setDate(s.getDate()+i*7);
+  var e=new Date(s.getTime());
+  e.setDate(e.getDate()+6);
+  return fmt(s)+' - '+fmt(e);
+}
 
-// ===== TAB SWITCHING =====
-function switchTab(tab) {
-  activeTab = tab;
-  ['plan','calc','photos','remind'].forEach(t => {
-    document.getElementById('panel-'+t).classList.toggle('active', t===tab);
-    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
-  });
-  document.getElementById('week-scroll').style.display = (tab==='plan'||tab==='photos') ? 'flex' : 'none';
-  document.getElementById('main-nav').style.display = tab==='plan' ? 'flex' : 'none';
+function setColor(c){
+  d('app').style.setProperty('--pc',c);
+}
+
+function goTab(tab){
+  activeTab=tab;
+  var tabs=['plan','calc','photos','remind'];
+  for(var i=0;i<tabs.length;i++){
+    d('p-'+tabs[i]).className='panel'+(tabs[i]===tab?' on':'');
+    d('t-'+tabs[i]).className='tab'+(tabs[i]===tab?' on':'');
+  }
+  var wb=d('wbar');
+  wb.style.display=(tab==='plan'||tab==='photos')?'flex':'none';
+  d('nav').style.display=tab==='plan'?'flex':'none';
   if(tab==='calc') renderCalc();
   if(tab==='photos') renderPhotos();
-  if(tab==='remind') renderReminders();
+  if(tab==='remind') renderRemind();
 }
 
-// ===== MAIN RENDER =====
-function render() {
-  const p = phases[current];
-  const cw = getCurrentWeek();
-  setPhaseColor(p.color);
+function render(){
+  var p=P[cur];
+  var cw=getCurWeek();
+  setColor(p.c);
 
-  document.getElementById('glow').style.background=`radial-gradient(circle,${p.color}25 0%,transparent 68%)`;
-  document.getElementById('header-week').textContent=`Tag ${Math.floor((new Date()-startDate)/(1000*60*60*24))+1}  •  Woche ${cw+1}`;
-  document.getElementById('header-harvest').textContent=`🏁 Ernte ca. ${getHarvestDate()}`;
-  document.getElementById('progress-fill').style.width=((cw+1)/phases.length*100)+'%';
-  document.getElementById('prog-label').textContent=`W${cw+1} / ${phases.length}`;
+  var days=Math.floor((new Date()-sd)/86400000)+1;
+  d('hdr-week').textContent='Tag '+days+' - Woche '+(cw+1);
+  d('hdr-week').style.color=p.c;
+  d('hdr-harvest').textContent='Ernte ca. '+getHarvestDate();
+  d('prog-fill').style.width=((cw+1)/P.length*100)+'%';
+  d('prog-fill').style.background=p.c;
+  d('prog-lbl').textContent='W'+(cw+1)+' / '+P.length;
+  d('prog-lbl').style.color=p.c;
 
   // Week buttons
-  const scroll=document.getElementById('week-scroll');
-  scroll.innerHTML='';
-  phases.forEach((ph,i)=>{
-    const btn=document.createElement('button');
-    btn.className='week-btn'+(i===current?' active':'')+(i===cw?' current-week':'');
-    btn.innerHTML=`<span class="w-emoji">${ph.emoji}</span><span style="font-size:9px">${ph.week}</span>`;
-    btn.style.setProperty('--phase-color',ph.color);
-    btn.onclick=()=>{current=i;render();if(activeTab==='photos')renderPhotos();if(activeTab==='calc')renderCalc();};
-    scroll.appendChild(btn);
-  });
-  setTimeout(()=>{const a=scroll.querySelector('.active');if(a)a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});},50);
-
-  // Card
-  document.getElementById('card-icon').textContent=p.emoji;
-  document.getElementById('card-week-label').textContent=p.week;
-  document.getElementById('card-title-text').textContent=p.label;
-  document.getElementById('card-dates').textContent=getWeekDates(current);
-  const badge=document.getElementById('card-badge');
-  if(current<cw){badge.textContent='Vergangen';badge.className='badge past';}
-  else if(current===cw){badge.textContent='Aktuelle Woche';badge.className='badge current';}
-  else{badge.textContent='Ausstehend';badge.className='badge future';}
-
-  let html='';
-  p.rows.forEach(r=>{
-    const cls=r.h?'highlight':r.d?'danger':r.s?'success':'';
-    html+=`<div class="info-row"><span class="info-icon">${r.i}</span><div style="flex:1"><div class="info-label">${r.l}</div><div class="info-value ${cls}">${r.v}</div></div></div>`;
-  });
-  document.getElementById('card-body').innerHTML=html;
-
-  let thtml='';
-  p.tips.forEach(t=>{thtml+=`<div class="tip-item"><span class="tip-icon">${t.i}</span><span class="tip-text">${t.t}</span></div>`;});
-  document.getElementById('tips-body').innerHTML=thtml;
-
-  const saved=JSON.parse(localStorage.getItem('grow-checks-'+current)||'[]');
-  document.getElementById('check-week-num').textContent=current+1;
-  let chtml='';
-  p.checks.forEach((c,i)=>{
-    const checked=saved.includes(i);
-    chtml+=`<div class="check-item" onclick="toggleCheck(${i})"><div class="check-box ${checked?'checked'}">${checked?'✓':''}</div><div class="check-label ${checked?'checked'}">${c}</div></div>`;
-  });
-  document.getElementById('check-body').innerHTML=chtml;
-
-  document.getElementById('note-week-label').textContent=current+1;
-  document.getElementById('notes-input').value=localStorage.getItem('grow-note-'+current)||'';
-
-  document.getElementById('btn-prev').disabled=current===0;
-  document.getElementById('btn-next').disabled=current===phases.length-1;
-  document.getElementById('btn-next').textContent=current===phases.length-1?'🏁 Ernte!':'Weiter →';
-
-  document.getElementById('panel-plan').scrollTo({top:0,behavior:'smooth'});
-}
-
-// ===== CALC =====
-function renderCalc() {
-  const p = phases[current];
-  document.getElementById('calc-week-name').textContent = `${p.week} — ${p.label}`;
-  document.getElementById('countdown-days').textContent = getDaysLeft();
-  document.getElementById('countdown-date-text').textContent = getHarvestDate();
-  setPhaseColor(p.color);
-  calcNutrients();
-}
-
-function calcNutrients() {
-  const p = phases[current];
-  const liters = parseFloat(document.getElementById('calc-liters').value)||1;
-  const n = p.nutrients;
-
-  const growAmt = (n.grow * liters).toFixed(1);
-  const bloomAmt = (n.bloom * liters).toFixed(1);
-  const topmaxAmt = (n.topmax * liters).toFixed(1);
-  const isFlush = current === 9;
-
-  let html = '';
-
-  if(isFlush) {
-    html = `<div class="calc-row"><div class="calc-name">💧 Nur klares Wasser</div><div class="calc-amount">${liters} L</div></div>
-    <div class="calc-row"><div class="calc-name">🌿 Bio·Grow</div><div class="calc-amount zero">0 ml</div></div>
-    <div class="calc-row"><div class="calc-name">🌸 Bio·Bloom</div><div class="calc-amount zero">0 ml</div></div>
-    <div class="calc-row"><div class="calc-name">⭐ Top·Max</div><div class="calc-amount zero">0 ml</div></div>`;
-  } else {
-    html = `
-    <div class="calc-row ${n.grow>0?'highlight':''}"><div class="calc-name">🌿 Bio·Grow</div><div class="calc-amount ${n.grow===0?'zero':''}">${n.grow===0?'❌':growAmt+' ml'}</div></div>
-    <div class="calc-row ${n.bloom>0?'highlight':''}"><div class="calc-name">🌸 Bio·Bloom</div><div class="calc-amount ${n.bloom===0?'zero':''}">${n.bloom===0?'❌':bloomAmt+' ml'}</div></div>
-    <div class="calc-row ${n.topmax>0?'highlight':''}"><div class="calc-name">⭐ Top·Max</div><div class="calc-amount ${n.topmax===0?'zero':''}">${n.topmax===0?'❌':topmaxAmt+' ml'}</div></div>`;
+  var wb=d('wbar');
+  wb.innerHTML='';
+  for(var i=0;i<P.length;i++){
+    var ph=P[i];
+    var btn=document.createElement('button');
+    btn.className='wbtn'+(i===cur?' on':'')+(i===cw?' cur':'');
+    btn.style.setProperty('--pc',ph.c);
+    if(i===cur){btn.style.borderColor=ph.c;btn.style.color=ph.c;btn.style.background='rgba(168,224,99,0.12)';}
+    btn.innerHTML='<span class="wic">'+ph.e+'</span><span style="font-size:9px">'+ph.w+'</span>';
+    (function(idx){btn.onclick=function(){cur=idx;render();if(activeTab==='photos')renderPhotos();if(activeTab==='calc')renderCalc();};})(i);
+    wb.appendChild(btn);
   }
+  setTimeout(function(){
+    var a=wb.querySelector('.on');
+    if(a) a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+  },50);
 
-  document.getElementById('calc-result').innerHTML = html;
+  d('p-icon').textContent=p.e;
+  d('p-wk').textContent=p.w;
+  d('p-wk').style.color=p.c;
+  d('p-nm').textContent=p.n;
+  d('p-dt').textContent=getWeekDates(cur);
 
-  const total = parseFloat(growAmt)+parseFloat(bloomAmt)+parseFloat(topmaxAmt);
-  let note = '';
-  if(isFlush) {
-    note = '🚿 Flush-Phase: ausschließlich klares Wasser für sauberen Geschmack.';
-  } else if(total === 0) {
-    note = '🌱 In dieser Phase noch kein Dünger — BioBizz Light Mix liefert genug Voraktivierung.';
-  } else {
-    note = `💡 Mischung für ${liters} L: alle Dünger zuerst ins Wasser, dann pH auf 6.2–6.5 einstellen. Im Wechsel mit reinem Wasser gießen!`;
+  var badge=d('p-badge');
+  if(cur<cw){badge.textContent='Vergangen';badge.className='badge past';}
+  else if(cur===cw){badge.textContent='Aktuelle Woche';badge.className='badge cur';badge.style.color=p.c;}
+  else{badge.textContent='Ausstehend';badge.className='badge fut';}
+
+  var rowsHtml='';
+  for(var r=0;r<p.rows.length;r++){
+    var row=p.rows[r];
+    var cls=row.hl?'rv hl':row.dn?'rv danger':'rv';
+    rowsHtml+='<div class="row"><span class="ri">'+row.i+'</span><div style="flex:1"><div class="rl">'+row.l+'</div><div class="'+cls+'">'+row.v+'</div></div></div>';
   }
-  document.getElementById('calc-note').textContent = note;
+  d('p-rows').innerHTML=rowsHtml;
+
+  var tipsHtml='';
+  for(var t=0;t<p.tips.length;t++){
+    tipsHtml+='<div class="tip"><span class="tip-ic">'+p.tips[t].i+'</span><span class="tip-tx">'+p.tips[t].t+'</span></div>';
+  }
+  d('p-tips').innerHTML=tipsHtml;
+
+  var saved=JSON.parse(localStorage.getItem('chk-'+cur)||'[]');
+  d('p-chknum').textContent=cur+1;
+  var chkHtml='';
+  for(var c2=0;c2<p.chks.length;c2++){
+    var checked=saved.indexOf(c2)>-1;
+    chkHtml+='<div class="chk" onclick="toggleChk('+c2+')"><div class="chk-box'+(checked?' on':'')+'">'+(checked?'':'')+'</div><div class="chk-lbl'+(checked?' on':'')+'">'+p.chks[c2]+'</div></div>';
+  }
+  d('p-checks').innerHTML=chkHtml;
+
+  d('p-notenum').textContent=cur+1;
+  d('p-note').value=localStorage.getItem('note-'+cur)||'';
+
+  d('n-prev').disabled=cur===0;
+  d('n-next').textContent=cur===P.length-1?'Ernte!':'Weiter';
+  d('n-next').disabled=false;
 }
 
-// ===== FOTOS =====
-function renderPhotos() {
-  document.getElementById('photo-week-num').textContent = current+1;
-  renderPhotoGrid();
-  renderAllWeeksPhotos();
+function toggleChk(i){
+  var saved=JSON.parse(localStorage.getItem('chk-'+cur)||'[]');
+  var idx=saved.indexOf(i);
+  if(idx>-1) saved.splice(idx,1); else saved.push(i);
+  localStorage.setItem('chk-'+cur,JSON.stringify(saved));
+  render();
 }
 
-function renderPhotoGrid() {
-  const photos = JSON.parse(localStorage.getItem('grow-photos-'+current)||'[]');
-  const grid = document.getElementById('photo-grid');
-  let html = '';
-  photos.forEach((src,i) => {
-    html += `<img class="photo-thumb" src="${src}" onclick="openLightbox('grow-photos-${current}',${i})"/>`;
-  });
-  html += `<div class="photo-empty" onclick="document.getElementById('photo-input').click()"><span>📷</span><span>Foto hinzufügen</span></div>`;
-  grid.innerHTML = html;
+function saveNote(){
+  localStorage.setItem('note-'+cur,d('p-note').value);
+  toast('Notiz gespeichert!');
 }
 
-function renderAllWeeksPhotos() {
-  const container = document.getElementById('all-weeks-photos');
-  let html = '';
-  phases.forEach((p,i) => {
-    const photos = JSON.parse(localStorage.getItem('grow-photos-'+i)||'[]');
-    if(photos.length === 0) return;
-    html += `<div style="margin-bottom:14px">
-      <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:7px">${p.emoji} ${p.week} — ${p.label}</div>
-      <div style="display:flex;gap:7px;overflow-x:auto;scrollbar-width:none">
-        ${photos.map((src,j)=>`<img style="width:80px;height:80px;border-radius:10px;object-fit:cover;flex-shrink:0;cursor:pointer" src="${src}" onclick="openLightbox('grow-photos-${i}',${j})"/>`).join('')}
-      </div>
-    </div>`;
-  });
-  container.innerHTML = html || '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Noch keine Fotos aus anderen Wochen</div>';
+function nav(dir){
+  var n=cur+dir;
+  if(n<0||n>=P.length) return;
+  cur=n;
+  render();
 }
 
-function addPhotos(input) {
-  const files = Array.from(input.files);
-  const existing = JSON.parse(localStorage.getItem('grow-photos-'+current)||'[]');
-  let loaded = 0;
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      existing.push(e.target.result);
-      loaded++;
-      if(loaded===files.length) {
-        localStorage.setItem('grow-photos-'+current, JSON.stringify(existing));
-        renderPhotos();
-        showToast(`✓ ${files.length} Foto${files.length>1?'s':''} gespeichert!`);
-      }
-    };
-    reader.readAsDataURL(file);
-  });
-  input.value='';
+function renderCalc(){
+  var p=P[cur];
+  d('c-days').textContent=getDaysLeft();
+  d('c-date').textContent=getHarvestDate();
+  d('c-wkname').textContent=p.w+' - '+p.n;
+  calcNuts();
 }
 
-function openLightbox(key, idx) {
-  const photos = JSON.parse(localStorage.getItem(key)||'[]');
-  lightboxPhotoKey = {key, idx};
-  document.getElementById('lightbox-img').src = photos[idx];
-  document.getElementById('lightbox').classList.add('open');
+function calcNuts(){
+  var p=P[cur];
+  var L=parseFloat(d('c-liters').value)||1;
+  var n=p.nt;
+  var isFlush=cur===9;
+  var html='';
+
+  if(isFlush){
+    html='<div class="calc-row"><div class="calc-name">💧 Nur klares Wasser</div><div class="calc-val">'+L+' L</div></div>';
+    html+='<div class="calc-row"><div class="calc-name">🌿 Bio Grow</div><div class="calc-val zero">0 ml</div></div>';
+    html+='<div class="calc-row"><div class="calc-name">🌸 Bio Bloom</div><div class="calc-val zero">0 ml</div></div>';
+    html+='<div class="calc-row"><div class="calc-name">⭐ Top Max</div><div class="calc-val zero">0 ml</div></div>';
+    d('c-note').textContent='Flush Phase: ausschliesslich klares Wasser fuer sauberen Geschmack.';
+  } else {
+    var gv=(n.g*L).toFixed(1);
+    var bv=(n.b*L).toFixed(1);
+    var tv=(n.t*L).toFixed(1);
+    html+='<div class="calc-row'+(n.g>0?' hl':'')+'"><div class="calc-name">🌿 Bio Grow</div><div class="calc-val'+(n.g===0?' zero':'')+'">'+( n.g===0?'0 ml':gv+' ml')+'</div></div>';
+    html+='<div class="calc-row'+(n.b>0?' hl':'')+'"><div class="calc-name">🌸 Bio Bloom</div><div class="calc-val'+(n.b===0?' zero':'')+'">'+( n.b===0?'0 ml':bv+' ml')+'</div></div>';
+    html+='<div class="calc-row'+(n.t>0?' hl':'')+'"><div class="calc-name">⭐ Top Max</div><div class="calc-val'+(n.t===0?' zero':'')+'">'+( n.t===0?'0 ml':tv+' ml')+'</div></div>';
+    if(n.g===0&&n.b===0&&n.t===0){
+      d('c-note').textContent='In dieser Phase noch kein Dunger - Light Mix hat genug Voraktivierung.';
+    } else {
+      d('c-note').textContent='Alle Dunger erst ins Wasser, dann pH auf 6.2-6.5 einstellen. Im Wechsel mit reinem Wasser giessen!';
+    }
+  }
+  d('c-result').innerHTML=html;
 }
 
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('open');
-  lightboxPhotoKey = null;
+function renderPhotos(){
+  d('ph-num').textContent=cur+1;
+  var photos=JSON.parse(localStorage.getItem('photo-'+cur)||'[]');
+  var html='';
+  for(var i=0;i<photos.length;i++){
+    html+='<img class="pthumb" src="'+photos[i]+'" onclick="openLb(\'photo-'+cur+'\','+i+')">';
+  }
+  html+='<div class="pempty" onclick="document.getElementById(\'finput\').click()"><span class="pempty-ic">📷</span><span>Foto hinzufuegen</span></div>';
+  d('ph-grid').innerHTML=html;
+
+  var allHtml='';
+  for(var w=0;w<P.length;w++){
+    var wph=JSON.parse(localStorage.getItem('photo-'+w)||'[]');
+    if(wph.length===0) continue;
+    allHtml+='<div style="margin-bottom:12px"><div class="sec-lbl" style="margin-bottom:6px">'+P[w].e+' '+P[w].w+' - '+P[w].n+'</div><div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none">';
+    for(var j=0;j<wph.length;j++){
+      allHtml+='<img style="width:72px;height:72px;border-radius:10px;object-fit:cover;flex-shrink:0;cursor:pointer" src="'+wph[j]+'" onclick="openLb(\'photo-'+w+'\','+j+')">';
+    }
+    allHtml+='</div></div>';
+  }
+  d('ph-all').innerHTML=allHtml||'<div style="color:var(--muted);font-size:13px;padding:16px 0;text-align:center">Noch keine Fotos aus anderen Wochen</div>';
 }
 
-function deletePhoto() {
-  if(!lightboxPhotoKey) return;
-  const {key, idx} = lightboxPhotoKey;
-  const photos = JSON.parse(localStorage.getItem(key)||'[]');
-  photos.splice(idx,1);
-  localStorage.setItem(key, JSON.stringify(photos));
-  closeLightbox();
+function openLb(key,idx){
+  lbKey=key; lbIdx=idx;
+  var photos=JSON.parse(localStorage.getItem(key)||'[]');
+  d('lb-img').src=photos[idx];
+  d('lb').className='on';
+}
+
+function closeLb(){
+  d('lb').className='';
+  lbKey=null;
+}
+
+function delPhoto(){
+  if(!lbKey) return;
+  var photos=JSON.parse(localStorage.getItem(lbKey)||'[]');
+  photos.splice(lbIdx,1);
+  localStorage.setItem(lbKey,JSON.stringify(photos));
+  closeLb();
   renderPhotos();
-  showToast('Foto gelöscht');
+  toast('Foto geloescht');
 }
 
-// ===== ERINNERUNGEN =====
-const reminders = [
-  {id:'giessen1',name:'Gießen — Morgens',emoji:'💧',defaultTime:'08:00',type:'giessen'},
-  {id:'giessen2',name:'Gießen — Abends',emoji:'💧',defaultTime:'19:00',type:'giessen'},
-  {id:'duenger',name:'Dünger mischen',emoji:'🧪',defaultTime:'08:00',type:'duenger'},
-  {id:'check',name:'Täglicher Check',emoji:'👀',defaultTime:'20:00',type:'check'},
+var REMS=[
+  {id:'g1',name:'Giessen Morgens',ic:'💧',def:'08:00'},
+  {id:'g2',name:'Giessen Abends',ic:'💧',def:'19:00'},
+  {id:'d1',name:'Dunger mischen',ic:'🧪',def:'08:00'},
+  {id:'c1',name:'Taeglicher Check',ic:'👀',def:'20:00'}
 ];
 
-function initReminders() {
-  reminders.forEach(r => {
-    if(!localStorage.getItem('reminder-time-'+r.id)) {
-      localStorage.setItem('reminder-time-'+r.id, r.defaultTime);
-    }
-    if(!localStorage.getItem('reminder-on-'+r.id)) {
-      localStorage.setItem('reminder-on-'+r.id, 'false');
-    }
-  });
-}
-
-function renderReminders() {
-  const giessenReminders = reminders.filter(r=>r.type==='giessen'||r.type==='check');
-  const duengerReminders = reminders.filter(r=>r.type==='duenger');
-  renderReminderList('reminder-body', giessenReminders);
-  renderReminderList('duenger-body', duengerReminders);
-}
-
-function renderReminderList(containerId, list) {
-  const container = document.getElementById(containerId);
-  let html = '';
-  list.forEach(r => {
-    const on = localStorage.getItem('reminder-on-'+r.id) === 'true';
-    const time = localStorage.getItem('reminder-time-'+r.id) || r.defaultTime;
-    html += `<div class="reminder-row">
-      <div class="reminder-info">
-        <div class="reminder-name">${r.emoji} ${r.name}</div>
-        <div class="reminder-time">
-          <input class="time-input" type="time" value="${time}" onchange="setReminderTime('${r.id}',this.value)"/>
-        </div>
-      </div>
-      <button class="toggle ${on?'on':'off'}" onclick="toggleReminder('${r.id}')"></button>
-    </div>`;
-  });
-  container.innerHTML = html;
-}
-
-function toggleReminder(id) {
-  const current = localStorage.getItem('reminder-on-'+id) === 'true';
-  const newVal = !current;
-  localStorage.setItem('reminder-on-'+id, newVal);
-  if(newVal) requestNotificationPermission(id);
-  renderReminders();
-}
-
-function setReminderTime(id, time) {
-  localStorage.setItem('reminder-time-'+id, time);
-  showToast('✓ Uhrzeit gespeichert!');
-}
-
-function requestNotificationPermission(id) {
-  if(!('Notification' in window)) {
-    showToast('⚠️ Notifications nicht unterstützt');
-    return;
+function renderRemind(){
+  var gHtml=''; var dHtml='';
+  for(var i=0;i<REMS.length;i++){
+    var r=REMS[i];
+    var on=localStorage.getItem('ron-'+r.id)==='1';
+    var time=localStorage.getItem('rtime-'+r.id)||r.def;
+    var row='<div class="rem-row"><div class="rem-info"><div class="rem-name">'+r.ic+' '+r.name+'</div><div class="rem-time"><input class="tinput" type="time" value="'+time+'" onchange="setRemTime(\''+r.id+'\',this.value)"></div></div><button class="tog '+(on?'on':'off')+'" onclick="toggleRem(\''+r.id+'\')"></button></div>';
+    if(r.id==='d1') dHtml+=row; else gHtml+=row;
   }
-  Notification.requestPermission().then(perm => {
-    if(perm === 'granted') {
-      showToast('✓ Benachrichtigungen aktiviert!');
-      scheduleNotification(id);
-    } else {
-      localStorage.setItem('reminder-on-'+id, 'false');
-      renderReminders();
-      showToast('⚠️ Bitte in Einstellungen erlauben');
-    }
-  });
+  d('r-giess').innerHTML=gHtml;
+  d('r-dung').innerHTML=dHtml;
 }
 
-function scheduleNotification(id) {
-  const r = reminders.find(x=>x.id===id);
-  if(!r) return;
-  const time = localStorage.getItem('reminder-time-'+id)||r.defaultTime;
-  const [h,m] = time.split(':').map(Number);
-  const now = new Date();
-  const next = new Date();
-  next.setHours(h,m,0,0);
-  if(next<=now) next.setDate(next.getDate()+1);
-  const delay = next-now;
-  setTimeout(()=>{
-    if(Notification.permission==='granted' && localStorage.getItem('reminder-on-'+id)==='true') {
-      new Notification(`🌱 GrowTracker — ${r.name}`, {
-        body: `Zeit für: ${r.name}! Woche ${getCurrentWeek()+1}`,
-        icon: 'icon-192.png',
-      });
-    }
-  }, delay);
+function toggleRem(id){
+  var on=localStorage.getItem('ron-'+id)==='1';
+  localStorage.setItem('ron-'+id,on?'0':'1');
+  if(!on && 'Notification' in window){
+    Notification.requestPermission().then(function(p){
+      if(p==='granted'){toast('Benachrichtigungen aktiviert!');}
+      else{localStorage.setItem('ron-'+id,'0');toast('Bitte in Einstellungen erlauben');}
+      renderRemind();
+    });
+  } else {
+    renderRemind();
+  }
 }
 
-// ===== UTILS =====
-function toggleCheck(i) {
-  const saved=JSON.parse(localStorage.getItem('grow-checks-'+current)||'[]');
-  const idx=saved.indexOf(i);
-  if(idx>-1) saved.splice(idx,1); else saved.push(i);
-  localStorage.setItem('grow-checks-'+current,JSON.stringify(saved));
-  render();
+function setRemTime(id,val){
+  localStorage.setItem('rtime-'+id,val);
+  toast('Uhrzeit gespeichert!');
 }
 
-function navigate(dir) {
-  const n=current+dir;
-  if(n<0||n>=phases.length) return;
-  current=n; render();
-}
+// Photo file input
+document.getElementById('finput').addEventListener('change',function(){
+  var files=Array.from(this.files);
+  if(!files.length) return;
+  var existing=JSON.parse(localStorage.getItem('photo-'+cur)||'[]');
+  var done=0;
+  for(var i=0;i<files.length;i++){
+    (function(file){
+      var reader=new FileReader();
+      reader.onload=function(e){
+        existing.push(e.target.result);
+        done++;
+        if(done===files.length){
+          localStorage.setItem('photo-'+cur,JSON.stringify(existing));
+          renderPhotos();
+          toast(files.length+' Foto(s) gespeichert!');
+        }
+      };
+      reader.readAsDataURL(file);
+    })(files[i]);
+  }
+  this.value='';
+});
 
-function saveNote() {
-  localStorage.setItem('grow-note-'+current,document.getElementById('notes-input').value);
-  showToast('✓ Notiz gespeichert!');
-}
+// BOOT
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 
-function showToast(msg) {
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2200);
-}
-
-// ===== BOOT =====
-if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-initReminders();
-const savedStart=localStorage.getItem('grow-start');
+var savedStart=localStorage.getItem('grow-start');
 if(savedStart){
-  startDate=new Date(savedStart);
-  document.getElementById('onboard').style.display='none';
-  document.getElementById('app').style.display='flex';
-  current=getCurrentWeek();
+  var pts=savedStart.split('-');
+  sd=new Date(parseInt(pts[0]),parseInt(pts[1])-1,parseInt(pts[2]));
+  d('ob').style.display='none';
+  d('app').style.display='flex';
+  cur=getCurWeek();
   render();
 } else {
-  document.getElementById('start-input').value=new Date().toISOString().split('T')[0];
+  d('date-in').value=new Date().toISOString().split('T')[0];
+  d('go-btn').addEventListener('click',function(){
+    var val=d('date-in').value;
+    if(!val){toast('Bitte Datum eingeben!');return;}
+    var pts=val.split('-');
+    sd=new Date(parseInt(pts[0]),parseInt(pts[1])-1,parseInt(pts[2]));
+    localStorage.setItem('grow-start',val);
+    d('ob').style.display='none';
+    d('app').style.display='flex';
+    cur=getCurWeek();
+    render();
+  });
 }
 </script>
+
 </body>
 </html>
