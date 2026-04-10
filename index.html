@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="GrowTracker"/>
+  <meta name="theme-color" content="#0a0f0d"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon.svg"/>
+  <title>Orion Grow Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--bg:#080e0a;--card:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--text:rgba(255,255,255,.92);--muted:rgba(255,255,255,.36);--ph:#a8e063}
+    html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden}
+    #app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:430px;margin:0 auto}
+    .tabs{display:flex;background:rgba(255,255,255,.03);border-bottom:1px solid var(--border);flex-shrink:0;z-index:10}
+    .tab{flex:1;padding:11px 4px 9px;font-size:10px;font-weight:600;color:var(--muted);text-align:center;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;letter-spacing:.04em;text-transform:uppercase;transition:color .2s;-webkit-tap-highlight-color:transparent;position:relative}
+    .tab span{font-size:17px;display:block;margin-bottom:2px}
+    .tab.on{color:var(--ph)}
+    .tab.on::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--ph);border-radius:99px}
+    .pg{display:none;flex:1;overflow-y:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+    .pg::-webkit-scrollbar{display:none}
+    .pg.on{display:block}
+    #glow{position:fixed;top:-80px;left:50%;transform:translateX(-50%);width:300px;height:300px;border-radius:50%;pointer-events:none;z-index:0;transition:background .7s}
+    .hdr{padding:max(env(safe-area-inset-top),20px) 20px 10px;position:relative;z-index:2;flex-shrink:0}
+    .hm{font-size:10px;color:var(--muted);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
+    .ht{font-family:'Playfair Display',serif;font-size:22px;font-weight:700}
+    .hs{font-size:11px;color:var(--muted);margin-top:3px}
+    .prg{padding:8px 20px 0;flex-shrink:0;position:relative;z-index:2}
+    .pl{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px}
+    .pb{height:4px;background:rgba(255,255,255,.07);border-radius:99px;overflow:hidden}
+    .pf{height:100%;border-radius:99px;background:linear-gradient(90deg,#a8e063,var(--ph));transition:width .5s}
+    .wr{display:flex;gap:6px;padding:10px 20px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;z-index:2;position:relative;-webkit-overflow-scrolling:touch}
+    .wr::-webkit-scrollbar{display:none}
+    .wb{flex-shrink:0;width:42px;height:42px;border-radius:12px;border:2px solid var(--border);background:rgba(255,255,255,.03);color:var(--muted);font-size:9px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .wb.on{border-color:var(--ph);background:color-mix(in srgb,var(--ph) 15%,transparent);color:var(--ph)}
+    .wb .we{font-size:14px;line-height:1}
+    .card{margin:0 16px 12px;border-radius:20px;background:var(--card);border:1px solid color-mix(in srgb,var(--ph) 25%,transparent);overflow:hidden;transition:border-color .5s}
+    .ch{padding:15px 18px 12px;background:color-mix(in srgb,var(--ph) 10%,transparent);border-bottom:1px solid color-mix(in srgb,var(--ph) 14%,transparent);display:flex;align-items:center;gap:12px}
+    .ci{width:50px;height:50px;border-radius:13px;background:color-mix(in srgb,var(--ph) 18%,transparent);border:1px solid color-mix(in srgb,var(--ph) 35%,transparent);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+    .cw{font-size:10px;color:var(--ph);text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:2px}
+    .cn{font-family:'Playfair Display',serif;font-size:20px;font-weight:700}
+    .cb{padding:2px 18px 12px}
+    .ir{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .ir:last-child{border:none}
+    .ii{font-size:15px;min-width:22px;padding-top:1px}
+    .il{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:2px}
+    .iv{font-size:13px;line-height:1.4}
+    .iv.hi{color:#ffd166;font-weight:600}
+    .iv.dg{color:#ff6b6b;font-weight:600}
+    .bb{margin:0 16px 12px;padding:12px 16px;border-radius:16px;background:rgba(168,224,99,.07);border:1px solid rgba(168,224,99,.2)}
+    .bbt{font-size:11px;color:#a8e063;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+    .bbr{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+    .bbr:last-of-type{border:none}
+    .bbv{font-size:14px;font-weight:700;color:#ffd166}
+    .bbv.off{color:var(--muted);font-weight:400;font-size:12px}
+    .bbn{font-size:11px;color:var(--muted);margin-top:7px;font-style:italic;line-height:1.5}
+    .tip{margin:0 16px 12px;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--ph) 8%,transparent);border:1px solid color-mix(in srgb,var(--ph) 22%,transparent)}
+    .tl{font-size:10px;color:var(--ph);text-transform:uppercase;letter-spacing:.1em;font-weight:700;margin-bottom:5px}
+    .tt{font-size:13px;color:rgba(255,255,255,.75);line-height:1.55}
+    .sec{margin:0 16px 12px}
+    .st{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;font-weight:600}
+    .ck{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .2s}
+    .ck.dn{background:rgba(168,224,99,.07);border-color:rgba(168,224,99,.25)}
+    .ckb{width:22px;height:22px;border-radius:7px;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px}
+    .ck.dn .ckb{background:#a8e063;border-color:#a8e063}
+    .ckt{font-size:13px;flex:1;line-height:1.35}
+    .ck.dn .ckt{text-decoration:line-through;color:var(--muted)}
+    .phg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 16px 12px}
+    .phc{padding:14px;border-radius:14px;background:var(--card);border:1px solid var(--border)}
+    .phl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    input[type=number]{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:9px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:18px;font-weight:700;padding:8px 10px;outline:none;text-align:center}
+    input[type=number]:focus{border-color:color-mix(in srgb,var(--ph) 50%,transparent)}
+    input[type=date]{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px;outline:none}
+    .pht{font-size:10px;color:#a8e063;margin-top:5px;text-align:center}
+    .phs{font-size:11px;margin-top:4px;text-align:center;font-weight:600;min-height:16px}
+    .lb{width:100%;padding:12px;border-radius:12px;border:1px solid color-mix(in srgb,var(--ph) 35%,transparent);background:color-mix(in srgb,var(--ph) 12%,transparent);color:var(--ph);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .lb:active{opacity:.7}
+    .le{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:5px;border:1px solid var(--border)}
+    .ld{font-size:11px;color:var(--muted)}
+    .lv{font-size:12px;font-weight:600;margin-top:2px}
+    .lx{background:none;border:none;color:rgba(255,100,100,.5);font-size:16px;cursor:pointer;padding:2px 6px}
+    .em{text-align:center;padding:28px 20px;color:var(--muted);font-size:13px}
+    .sc{margin:0 16px 12px;padding:14px 16px;background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.2);border-radius:16px}
+    .sl{font-size:11px;color:#ffd166;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+    .hi2{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;margin-top:8px}
+    .hi2 strong{color:#ffd166}
+    textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 13px;resize:none;outline:none;min-height:80px}
+    textarea:focus{border-color:color-mix(in srgb,var(--ph) 50%,transparent)}
+    textarea::placeholder{color:rgba(255,255,255,.2)}
+    .dc{margin:0 16px 10px;padding:13px 15px;background:var(--card);border-radius:15px;border:1px solid var(--border)}
+    .dm{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+    .dw{font-size:11px;color:var(--ph);font-weight:700}
+    .dd{font-size:11px;color:var(--muted)}
+    .dt{font-size:13px;color:rgba(255,255,255,.72);line-height:1.5}
+    .dx{background:none;border:none;color:rgba(255,100,100,.4);font-size:14px;cursor:pointer;margin-left:8px}
+    .trg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .trb{padding:12px 6px;border-radius:12px;border:2px solid var(--border);background:rgba(255,255,255,.03);font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:center;transition:all .2s;color:var(--muted);-webkit-tap-highlight-color:transparent}
+    .trb.on{border-color:var(--ph);background:color-mix(in srgb,var(--ph) 15%,transparent);color:var(--ph)}
+    .trr{margin-top:10px;padding:12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--border);font-size:13px;line-height:1.5;text-align:center}
+    .ib{margin:0 16px 8px;padding:10px 14px;border-radius:13px;background:rgba(255,209,102,.07);border:1px solid rgba(255,209,102,.22);display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:2;position:relative}
+    .ibt{flex:1;font-size:12px;color:rgba(255,255,255,.65);line-height:1.4}
+    .ibt strong{color:#ffd166;display:block;font-size:13px;margin-bottom:1px}
+    .ibx{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:2px 6px}
+    .bn{display:flex;gap:10px;padding:10px 16px;padding-bottom:max(env(safe-area-inset-bottom),12px);flex-shrink:0;z-index:2}
+    .bna{flex:1;padding:14px;border-radius:15px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .bna.pv{border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted)}
+    .bna.nx{border:1px solid color-mix(in srgb,var(--ph) 40%,transparent);background:color-mix(in srgb,var(--ph) 15%,transparent);color:var(--ph)}
+    .bna:disabled{opacity:.25;cursor:default}
+    .bna:not(:disabled):active{transform:scale(.97)}
+    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(15,30,15,.97);border:1px solid rgba(168,224,99,.3);color:#a8e063;padding:10px 22px;border-radius:50px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:999;white-space:nowrap;pointer-events:none}
+    .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+    .p16{padding:0 16px}
+    .mb{margin-bottom:12px}
+    .sp{height:20px}
+  </style>
+</head>
+<body>
+<div id="app">
+  <div id="glow"></div>
+  <div class="hdr">
+    <div class="hm">Auto Orion F1 · Royal Queen Seeds</div>
+    <div class="ht">🌌 Grow Tracker</div>
+    <div class="hs" id="hs">Autopot · BioBizz · SanLight Evo 1.5</div>
+  </div>
+  <div class="prg">
+    <div class="pl"><span>Tag 1</span><span id="pl" style="color:var(--ph)">W1/10</span><span id="el">~70 Tage</span></div>
+    <div class="pb"><div class="pf" id="pf"></div></div>
+  </div>
+  <div class="wr" id="wr"></div>
+  <div class="ib" id="ib" style="display:none">
+    <div class="ibt"><strong>📲 Als App installieren</strong>Safari → Teilen → „Zum Home-Bildschirm"</div>
+    <button class="ibx" onclick="document.getElementById('ib').style.display='none';localStorage.setItem('bn','1')">×</button>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="T(0)"><span>📋</span>Plan</button>
+    <button class="tab" onclick="T(1)"><span>✅</span>Check</button>
+    <button class="tab" onclick="T(2)"><span>💧</span>pH Log</button>
+    <button class="tab" onclick="T(3)"><span>📔</span>Diary</button>
+    <button class="tab" onclick="T(4)"><span>🔬</span>Ernte</button>
+  </div>
+  <div class="pg on" id="p0">
+    <div class="card"><div class="ch"><div class="ci" id="ci"></div><div><div class="cw" id="cw"></div><div class="cn" id="cn"></div></div></div><div class="cb" id="cb"></div></div>
+    <div class="bb" id="bb"></div>
+    <div class="tip"><div class="tl">💬 Tipp der Woche</div><div class="tt" id="tt"></div></div>
+    <div class="bn"><button class="bna pv" id="bp" onclick="N(-1)">← Zurück</button><button class="bna nx" id="bn2" onclick="N(1)">Weiter →</button></div>
+  </div>
+  <div class="pg" id="p1">
+    <div class="sec" style="margin-top:14px"><div class="st" id="ct">Checkliste</div><div id="cl"></div></div>
+    <div class="sp"></div>
+  </div>
+  <div class="pg" id="p2">
+    <div style="margin-top:14px">
+      <div class="sc"><div class="sl">🗓️ Grow Startdatum</div><input type="date" id="sd" onchange="SS()"/><div class="hi2" id="hi"></div></div>
+      <div class="phg">
+        <div class="phc"><div class="phl">💧 pH Wert</div><input type="number" id="pv" placeholder="6.3" step="0.1" min="0" max="14"/><div class="pht">Ziel: 6.2–6.5</div><div class="phs" id="ps"></div></div>
+        <div class="phc"><div class="phl">⚡ EC Wert</div><input type="number" id="ev" placeholder="0.8" step="0.1" min="0"/><div class="pht" id="et">Ziel: –</div></div>
+      </div>
+      <div class="p16 mb"><button class="lb" onclick="LP()">+ Messung speichern</button></div>
+      <div id="ll" style="padding:0 16px"><div class="em">💧<br/><br/>Noch keine Messungen</div></div>
+      <div class="sp"></div>
+    </div>
+  </div>
+  <div class="pg" id="p3">
+    <div class="sec" style="margin-top:14px">
+      <div class="st">📝 Neue Notiz — W<span id="dw">1</span></div>
+      <textarea id="di" placeholder="Beobachtungen, Auffälligkeiten, Messungen..."></textarea><br/><br/>
+      <button class="lb" onclick="SD()">+ Eintrag speichern</button>
+    </div>
+    <div style="height:12px"></div>
+    <div class="sec"><div class="st">Alle Einträge</div><div id="dl"></div></div>
+    <div class="sp"></div>
+  </div>
+  <div class="pg" id="p4">
+    <div class="sec" style="margin-top:14px">
+      <div class="st">🔬 Trichom-Check</div>
+      <div class="tip" style="margin:0 0 10px"><div class="tl">So checkst du Trichome</div><div class="tt">40–100x Juwelier-Lupe oder USB-Mikroskop. Immer an den Colas checken — Sugar Leaves trüben früher ein.</div></div>
+      <div class="trg">
+        <button class="trb" onclick="TR(0)">🌿 Klar<br/><span style="font-size:9px;color:var(--muted)">Zu früh</span></button>
+        <button class="trb" onclick="TR(1)">🥛 Milchig<br/><span style="font-size:9px;color:var(--muted)">Peak THC</span></button>
+        <button class="trb" onclick="TR(2)">🍯 Bernstein<br/><span style="font-size:9px;color:var(--muted)">Couch-Lock</span></button>
+      </div>
+      <div class="trr" id="tr" style="display:none"></div>
+    </div>
+    <div class="sec"><div class="st">✂️ Ernte-Checkliste</div><div id="hc"></div></div>
+    <div class="sec">
+      <div class="st">🍂 Trocknen & Curing</div>
+      <div class="tip" style="margin:0"><div class="tt">
+        <strong style="color:var(--ph)">Trocknen:</strong> 10–14 Tage bei 16–18°C / 50–55% RH. Kein direkter Ventilator auf die Buds.<br/><br/>
+        <strong style="color:var(--ph)">Curing:</strong> Mason Jars ¾ befüllen. Erste 2 Wochen täglich 15 min öffnen. Danach einmal täglich. Mind. 4 Wochen.<br/><br/>
+        <strong style="color:var(--ph)">Boveda 62%</strong> reindlegen für konstante Feuchtigkeit. Orion F1 entwickelt beim Curing ein außergewöhnliches Fruchtsüße-Aroma!
+      </div></div>
+    </div>
+    <div class="sp"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const PH=[
+  {w:"W1",l:"Keimling",e:"🌱",c:"#a8e063",rows:[{i:"💡",l:"SanLight",v:"15% · ~30W",h:1},{i:"📏",l:"Abstand",v:"65 cm"},{i:"🚿",l:"Autopot Ventil",v:"GESCHLOSSEN ⛔"},{i:"💨",l:"Luftfeuchtigkeit",v:"65–70%"},{i:"🌡️",l:"Temperatur",v:"22–26°C"}],bb:{g:"—",b:"—",t:"—",n:"BioBizz Light-Mix versorgt die Pflanze. Kein Dünger nötig — das Substrat enthält genug Nährstoffe."},tip:"Substrat nur leicht feucht — Fingertipp-Test. Keimling braucht Ruhe, keine Eingriffe nötig.",chks:["Keimling ist aus der Erde","Substrat: leicht feucht","Lampe 15% @ 65cm","Autopot Ventil GESCHLOSSEN","Temperatur 22–26°C","Luftfeuchtigkeit 65–70%","Kein Luftzug auf den Keimling"]},
+  {w:"W2",l:"Keimling",e:"🌱",c:"#a8e063",rows:[{i:"💡",l:"SanLight",v:"20% · ~40W",h:1},{i:"📏",l:"Abstand",v:"60 cm"},{i:"🚿",l:"Autopot Ventil",v:"GESCHLOSSEN ⛔"},{i:"💨",l:"Luftfeuchtigkeit",v:"65–70%"},{i:"🌡️",l:"Temperatur",v:"22–26°C"}],bb:{g:"—",b:"—",t:"—",n:"Noch kein Dünger. Erste Blätter entwickeln sich — Light-Mix versorgt alles vollständig."},tip:"Erste echte Blätter erscheinen. Wurzeln erkunden den Topf. Gießen nur wenn Oberfläche trocken.",chks:["Erste Blätter sichtbar","Lampe 20% @ 60cm","Ventil GESCHLOSSEN","Gießen nur bei Bedarf","Lüftung läuft (kein Direktzug)"]},
+  {w:"W3",l:"Early Veg",e:"🌿",c:"#56ab2f",rows:[{i:"💡",l:"SanLight",v:"30% · ~60W",h:1},{i:"📏",l:"Abstand",v:"50 cm"},{i:"🚿",l:"Autopot Ventil",v:"GESCHLOSSEN ⛔"},{i:"💨",l:"Luftfeuchtigkeit",v:"60–65%"},{i:"🌡️",l:"Temperatur",v:"22–26°C"}],bb:{g:"1 ml/L",b:"—",t:"—",n:"Offizieller BioBizz Startpunkt für Light-Mix. Sanft beginnen — Autos reagieren empfindlich. Manuell gießen."},tip:"Bio·Grow einführen — nur 1 ml/L starten! Ventil bleibt zu. pH nach dem Mischen prüfen: 6.2–6.5.",chks:["Lampe 30% @ 50cm","Bio·Grow 1ml/L angesetzt","pH gemessen: 6.2–6.5","Ventil GESCHLOSSEN — manuell 150ml","Pflanze wächst aktiv"]},
+  {w:"W4",l:"Veg",e:"🌿",c:"#38a846",rows:[{i:"💡",l:"SanLight",v:"40% · ~80W",h:1},{i:"📏",l:"Abstand",v:"40 cm"},{i:"🚿",l:"Autopot Ventil",v:"JETZT ÖFFNEN ✅",d:1},{i:"💨",l:"Luftfeuchtigkeit",v:"55–60%"},{i:"🌡️",l:"Temperatur",v:"22–26°C"}],bb:{g:"2 ml/L",b:"—",t:"—",n:"Bio·Grow steigern. Reservoir befüllen. pH NACH dem Mischen: 6.2–6.5. Reservoir max. 4 Tage!"},tip:"Autopot-Ventil jetzt öffnen! Reservoir mit Nährlösung befüllen. LST kann beginnen.",chks:["Lampe 40% @ 40cm","Autopot Ventil GEÖFFNET ✅","Reservoir: Bio·Grow 2ml/L","pH: 6.2–6.5 gemessen","LST begonnen (optional)","Reservoir max. 4 Tage"]},
+  {w:"W5",l:"Veg",e:"🌿",c:"#38a846",rows:[{i:"💡",l:"SanLight",v:"50% · ~100W",h:1},{i:"📏",l:"Abstand",v:"35 cm"},{i:"🚿",l:"Autopot Ventil",v:"Offen"},{i:"💨",l:"Luftfeuchtigkeit",v:"55–60%"},{i:"🌡️",l:"Temperatur",v:"22–26°C"}],bb:{g:"2 ml/L",b:"0.5 ml/L",t:"—",n:"Offizieller Übergang: Bio·Bloom sanft einführen. Pflanze steht kurz vor der Blüte. Erste Pistils beobachten."},tip:"Übergangsphase! Bio·Bloom sanft dazugeben. Erste weiße Pistils können erscheinen.",chks:["Lampe 50% @ 35cm","Reservoir: Grow 2ml + Bloom 0.5ml/L","pH: 6.2–6.5","Erste Pistils sichtbar?","LST weiter pflegen"]},
+  {w:"W6",l:"Pre-Flower",e:"🌸",c:"#f7971e",rows:[{i:"💡",l:"SanLight",v:"60% · ~120W",h:1},{i:"📏",l:"Abstand",v:"30 cm"},{i:"🚿",l:"Autopot Ventil",v:"Offen"},{i:"💨",l:"Luftfeuchtigkeit",v:"50–55%"},{i:"🌡️",l:"Temperatur",v:"20–25°C"}],bb:{g:"1 ml/L",b:"2 ml/L",t:"0.5 ml/L",n:"BioBizz Phasenwechsel: Bloom übernimmt, Grow stark reduzieren. Top·Max sanft einführen."},tip:"Blüte startet! Bio·Grow runter, Bio·Bloom + Top·Max einführen. Erste Colas formen sich.",chks:["Lampe 60% @ 30cm","Reservoir: Grow 1ml + Bloom 2ml + TopMax 0.5ml/L","pH: 6.0–6.5","Blüten deutlich sichtbar","RH unter 55%","Ventilator-Position optimiert"]},
+  {w:"W7",l:"Blüte BW1",e:"🌸",c:"#f05f57",rows:[{i:"💡",l:"SanLight",v:"70% · ~140W",h:1},{i:"📏",l:"Abstand",v:"30 cm"},{i:"🚿",l:"Autopot Ventil",v:"Offen"},{i:"💨",l:"Luftfeuchtigkeit",v:"⚠️ MAX 50%",d:1},{i:"🌡️",l:"Temperatur",v:"20–24°C"}],bb:{g:"—",b:"3 ml/L",t:"1 ml/L",n:"Bio·Grow komplett stoppen! Nur noch Bloom + TopMax. Für Autos: max. 75% der BioBizz Volldosis."},tip:"Bio·Grow stoppen! Defoliation: untere beschattete Blätter entfernen. Luftzirkulation an den Buds ist kritisch!",chks:["Lampe 70% @ 30cm","Reservoir: Bloom 3ml + TopMax 1ml/L","Bio·Grow GESTOPPT","Defoliation gemacht","RH unter 50% ⚠️","Botrytis-Check an dichten Stellen","pH: 6.0–6.3"]},
+  {w:"W8",l:"Blüte BW2",e:"🌺",c:"#e73c7e",rows:[{i:"💡",l:"SanLight",v:"80% · ~160W",h:1},{i:"📏",l:"Abstand",v:"30 cm"},{i:"🚿",l:"Autopot Ventil",v:"Offen"},{i:"💨",l:"Luftfeuchtigkeit",v:"⚠️ MAX 48%",d:1},{i:"🌡️",l:"Temperatur",v:"20–24°C"}],bb:{g:"—",b:"4 ml/L",t:"2 ml/L",n:"BioBizz Peak-Dosis! Orion F1 bildet extrem dichte Buds — täglicher Botrytis-Check ist Pflicht!"},tip:"Maximale Blütepower! Täglich auf Schimmel in den Bud-Kernen prüfen — Orion F1 hat sehr dichte Colas.",chks:["Lampe 80% @ 30cm","Reservoir: Bloom 4ml + TopMax 2ml/L","TÄGLICH Botrytis-Check","RH unter 48% ⚠️","pH: 6.0–6.3","Trichome beginnen sichtbar zu werden"]},
+  {w:"W9",l:"Blüte BW3",e:"🌺",c:"#c0392b",rows:[{i:"💡",l:"SanLight",v:"90–100% · ~200W",h:1},{i:"📏",l:"Abstand",v:"30 cm"},{i:"🚿",l:"Autopot Ventil",v:"Offen"},{i:"💨",l:"Luftfeuchtigkeit",v:"⚠️ MAX 45%",d:1},{i:"🌡️",l:"Temperatur",v:"18–24°C"}],bb:{g:"—",b:"4 ml/L",t:"2 ml/L",n:"Letzte volle Düngerwoche nach BioBizz-Plan. Trichome täglich checken. Flush vorbereiten!"},tip:"Trichome TÄGLICH checken. Wechsle zu Flush wenn 70%+ der Trichome milchig sind.",chks:["Lampe 100%","Reservoir: Bloom 4ml + TopMax 2ml/L","Trichome täglich checken 🔬","RH unter 45%","Täglich Botrytis-Check","Flush-Wasser vorbereiten"]},
+  {w:"W10",l:"Flush & Ernte",e:"✂️",c:"#8e44ad",rows:[{i:"💡",l:"SanLight",v:"100% · 200W",h:1},{i:"📏",l:"Abstand",v:"30 cm"},{i:"🚿",l:"Autopot Ventil",v:"Nur klares Wasser"},{i:"💨",l:"Luftfeuchtigkeit",v:"40–45%"},{i:"🌡️",l:"Temperatur",v:"18–22°C"}],bb:{g:"❌",b:"❌",t:"❌",n:"KEIN DÜNGER! 7–14 Tage nur pH-Wasser (6.0–6.2). Blätter werden gelb — das ist erwünscht beim Flushing!"},tip:"70% milchig + 30% Bernstein = perfekter Ernte-Zeitpunkt. Ernte morgens nach der Dunkelphase!",chks:["KEIN DÜNGER — nur pH-Wasser 6.0–6.2","Blätter vergilben — ist normal","Trichome: 70% milchig / 30% Bernstein?","RH unter 45%","Schere desinfiziert","Trockenraum: 16–18°C / 50% RH","Nach Dunkelphase ernten"]}
+];
+const EC=["—","—","0.6–0.8","0.8–1.0","1.0–1.2","1.0–1.2","1.2–1.4","1.4–1.6","1.4–1.6","0.4–0.6"];
+const HC=["Trockenraum bereit (16–18°C / 50% RH)","Hängestangen aufgehängt","Schere desinfiziert","Latex-Handschuhe bereit","Mason Jars vorhanden","Boveda 62% Packs besorgt","Trimm-Schere bereit"];
+const TR2=[
+  {c:"#56ab2f",t:"🌿 Noch zu früh! Trichome sind klar/durchsichtig. Potenz baut sich noch auf. 5–10 Tage warten."},
+  {c:"#ffd166",t:"🥛 Peak THC! Jetzt ernten für maximale Potenz und cerebralen High. Optimal bei 80–100% milchig."},
+  {c:"#e73c7e",t:"🍯 Körper-High! THC baut sich ab. Schwerer, entspannender Couch-Lock. Ideal: 70% milchig + 30% Bernstein."}
+];
+let C=parseInt(localStorage.getItem('gw')||'0'),AT=0;
+function G(id){return document.getElementById(id);}
+function toast(m){const t=G('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2200);}
+function T(i){AT=i;document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('on',i===j));document.querySelectorAll('.pg').forEach((p,j)=>p.classList.toggle('on',i===j));if(i===1)RC();if(i===3)RD();}
+function R(){
+  const p=PH[C];
+  document.documentElement.style.setProperty('--ph',p.c);
+  G('glow').style.background=`radial-gradient(circle,${p.c}22 0%,transparent 68%)`;
+  G('pf').style.width=((C+1)/PH.length*100)+'%';
+  G('pl').textContent=`W${C+1}/10`;
+  const sd=localStorage.getItem('sd');
+  if(sd){const s=new Date(sd),h=new Date(s);h.setDate(s.getDate()+70);const dl=Math.max(0,Math.round((h-new Date())/864e5));G('el').textContent=dl>0?`~${dl} Tage`:'🌿 Ernte!';G('hs').textContent=`Start: ${s.toLocaleDateString('de')} · Ernte: ${h.toLocaleDateString('de')}`;}
+  const wr=G('wr');wr.innerHTML='';
+  PH.forEach((ph,i)=>{const b=document.createElement('button');b.className='wb'+(i===C?' on':'');b.style.setProperty('--ph',ph.c);b.innerHTML=`<span class="we">${ph.e}</span><span>${ph.w}</span>`;b.onclick=()=>{C=i;save();R();if(AT===1)RC();if(AT===3)RD();};wr.appendChild(b);});
+  setTimeout(()=>{const a=wr.querySelector('.on');if(a)a.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});},50);
+  G('ci').textContent=p.e;G('cw').textContent=p.w;G('cn').textContent=p.l;
+  G('cb').innerHTML=p.rows.map(r=>`<div class="ir"><span class="ii">${r.i}</span><div style="flex:1"><div class="il">${r.l}</div><div class="iv ${r.h?'hi':r.d?'dg':''}">${r.v}</div></div></div>`).join('');
+  G('bb').innerHTML=`<div class="bbt">🌿 BioBizz Reservoir — W${C+1} (Light-Mix · Autos)</div><div class="bbr"><span>💚 Bio·Grow</span><span class="bbv ${p.bb.g==='—'||p.bb.g==='❌'?'off':''}">${p.bb.g}</span></div><div class="bbr"><span>🌸 Bio·Bloom</span><span class="bbv ${p.bb.b==='—'||p.bb.b==='❌'?'off':''}">${p.bb.b}</span></div><div class="bbr"><span>⭐ Top·Max</span><span class="bbv ${p.bb.t==='—'||p.bb.t==='❌'?'off':''}">${p.bb.t}</span></div><div class="bbn">${p.bb.n}</div>`;
+  G('tt').textContent=p.tip;
+  G('bp').disabled=C===0;G('bn2').disabled=C===PH.length-1;G('bn2').textContent=C===PH.length-1?'🏁 Letzte Woche':'Weiter →';
+  G('et').textContent=`Ziel: ${EC[C]} mS/cm`;
+  G('dw').textContent=C+1;
+}
+function RC(){const p=PH[C];G('ct').textContent=`Checkliste — ${p.w}: ${p.l}`;const s=JSON.parse(localStorage.getItem(`ck${C}`)||'[]');G('cl').innerHTML=p.chks.map((t,i)=>`<div class="ck${s.includes(i)?' dn':''}" onclick="TC(${i})"><div class="ckb">${s.includes(i)?'✓':''}</div><div class="ckt">${t}</div></div>`).join('');}
+function TC(i){const s=JSON.parse(localStorage.getItem(`ck${C}`)||'[]');const x=s.indexOf(i);x>-1?s.splice(x,1):s.push(i);localStorage.setItem(`ck${C}`,JSON.stringify(s));RC();}
+function CPH(){const v=parseFloat(G('pv').value),el=G('ps');if(isNaN(v)){el.textContent='';return;}if(v>=6.2&&v<=6.5){el.textContent='✓ Perfekt!';el.style.color='#a8e063';}else if(v>=6.0&&v<6.2||v>6.5&&v<=6.8){el.textContent='↕ Leicht daneben';el.style.color='#ffd166';}else{el.textContent='⚠️ Außerhalb';el.style.color='#ff6b6b';}}
+function LP(){const ph=G('pv').value,ec=G('ev').value;if(!ph&&!ec){toast('⚠️ Wert eingeben');return;}const l=JSON.parse(localStorage.getItem('phl')||'[]');const n=new Date();l.unshift({d:n.toLocaleDateString('de')+' '+n.toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit'}),ph,ec,w:C+1});localStorage.setItem('phl',JSON.stringify(l.slice(0,60)));G('pv').value='';G('ev').value='';G('ps').textContent='';RL();toast('✓ Gespeichert!');}
+function RL(){const l=JSON.parse(localStorage.getItem('phl')||'[]');const el=G('ll');if(!l.length){el.innerHTML='<div class="em">💧<br/><br/>Noch keine Messungen</div>';return;}el.innerHTML=l.map((x,i)=>`<div class="le"><div><div class="ld">W${x.w} · ${x.d}</div><div class="lv">${x.ph?'pH: '+x.ph:''}${x.ph&&x.ec?' · ':''}${x.ec?'EC: '+x.ec:''}</div></div><button class="lx" onclick="DL(${i})">×</button></div>`).join('');}
+function DL(i){const l=JSON.parse(localStorage.getItem('phl')||'[]');l.splice(i,1);localStorage.setItem('phl',JSON.stringify(l));RL();}
+function SS(){localStorage.setItem('sd',G('sd').value);UHI();R();}
+function UHI(){const sd=localStorage.getItem('sd'),el=G('hi');if(!sd){el.textContent='';return;}const s=new Date(sd),h=new Date(s);h.setDate(s.getDate()+70);const day=Math.max(1,Math.round((new Date()-s)/864e5)+1);const dl=Math.max(0,Math.round((h-new Date())/864e5));el.innerHTML=`Tag <strong>${day}</strong> · Ernte <strong>${h.toLocaleDateString('de')}</strong> · Noch <strong>${dl}d</strong>`;}
+function SD(){const t=G('di').value.trim();if(!t){toast('⚠️ Text eingeben');return;}const e=JSON.parse(localStorage.getItem('dy')||'[]');const n=new Date();e.unshift({w:C+1,d:n.toLocaleDateString('de'),t});localStorage.setItem('dy',JSON.stringify(e));G('di').value='';RD();toast('✓ Eintrag gespeichert!');}
+function RD(){const e=JSON.parse(localStorage.getItem('dy')||'[]');const el=G('dl');if(!e.length){el.innerHTML='<div class="em">📔<br/><br/>Noch keine Einträge</div>';return;}el.innerHTML=e.map((x,i)=>`<div class="dc"><div class="dm"><span class="dw">Woche ${x.w}</span><span style="display:flex;align-items:center"><span class="dd">${x.d}</span><button class="dx" onclick="DD(${i})">×</button></span></div><div class="dt">${x.t}</div></div>`).join('');}
+function DD(i){const e=JSON.parse(localStorage.getItem('dy')||'[]');e.splice(i,1);localStorage.setItem('dy',JSON.stringify(e));RD();}
+function TR(i){document.querySelectorAll('.trb').forEach((b,j)=>b.classList.toggle('on',i===j));const r=TR2[i],el=G('tr');el.style.display='block';el.style.color=r.c;el.style.borderColor=r.c+'44';el.textContent=r.t;}
+function RHC(){const s=JSON.parse(localStorage.getItem('hchk')||'[]');G('hc').innerHTML=HC.map((t,i)=>`<div class="ck${s.includes(i)?' dn':''}" onclick="THC(${i})"><div class="ckb">${s.includes(i)?'✓':''}</div><div class="ckt">${t}</div></div>`).join('');}
+function THC(i){const s=JSON.parse(localStorage.getItem('hchk')||'[]');const x=s.indexOf(i);x>-1?s.splice(x,1):s.push(i);localStorage.setItem('hchk',JSON.stringify(s));RHC();}
+function N(d){const n=C+d;if(n<0||n>=PH.length)return;C=n;save();R();if(AT===1)RC();if(AT===3)RD();}
+function save(){localStorage.setItem('gw',C);}
+document.addEventListener('input',e=>{if(e.target.id==='pv')CPH();});
+(function(){
+  const sd=localStorage.getItem('sd');if(sd){G('sd').value=sd;UHI();}
+  if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.navigator.standalone&&!localStorage.getItem('bn'))G('ib').style.display='flex';
+  if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  RL();RD();RHC();R();
+})();
+</script>
+</body>
+</html>
