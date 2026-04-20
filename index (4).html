@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0A0F0B">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Orion">
+<meta name="description" content="Grow Tracker für Auto Orion F1 mit BioBizz Light Mix">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230A0F0B'/%3E%3Cpath d='M32 10c-3 10-11 17-22 19 11 2 19 9 22 19 3-10 11-17 22-19-11-2-19-9-22-19z' fill='%2322C55E'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<title>Orion · Grow</title>
+</head>
+<body>
+
+<!-- START SCREEN -->
+<div class="ss h" id="startScreen">
+  <div class="sh0">
+    <div class="sl0">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0A0F0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2c-1.5 5-5.5 8.5-11 9.5 5.5 1 9.5 4.5 11 9.5 1.5-5 5.5-8.5 11-9.5-5.5-1-9.5-4.5-11-9.5z"/></svg>
+    </div>
+    <h1>Orion</h1>
+    <p>Grow-Begleiter · Auto Orion F1 · BioBizz Light Mix</p>
+  </div>
+  <div class="c">
+    <div class="fr"><label>Start-Datum (Keimung)</label><input type="date" id="sDate"></div>
+    <div class="fr"><label>Anzahl Pflanzen</label><input type="number" id="sPlants" value="3" min="1" max="6"></div>
+    <div class="fr"><label>Pot-Volumen (Liter)</label><input type="number" id="sPot" value="11" min="3" max="30"></div>
+    <div class="fr"><label>Lichtzyklus</label><div class="ch" id="sLight"><button class="chp a" data-v="18/6">18/6</button><button class="chp" data-v="20/4">20/4</button><button class="chp" data-v="24/0">24/0</button></div></div>
+    <button class="bp" id="startBtn">Grow starten →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <div id="shareBanner"></div>
+  <div class="hd">
+    <h1><span class="pulse"></span>ORION</h1>
+    <div style="display:flex;gap:0">
+      <button class="ib" id="shareBtn" title="Teilen"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg></button>
+      <button class="ib" id="stBtn" title="Settings"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="view a" id="v-home">
+    <div id="alerts"></div>
+    <div class="hero">
+      <div class="hrow">
+        <div>
+          <div class="bdg"><span class="pd" id="hDot"></span><span id="hPhase">—</span></div>
+          <div class="sub">Auto Orion F1 · BioBizz Light Mix</div>
+        </div>
+        <div class="dbig"><span id="hDay">—</span><sub>/<span id="hTotal">70</span></sub></div>
+      </div>
+      <div class="pw">
+        <div class="pt"><div class="pf" id="hProg" style="width:0%"></div></div>
+        <div class="pm" id="hMarks"></div>
+      </div>
+      <div class="sg">
+        <div class="st"><div class="sl">Letzte Gabe</div><div class="sv mono" id="sLast">—</div></div>
+        <div class="st"><div class="sl">Ø Menge</div><div class="sv mono" id="sAvg">—</div></div>
+        <div class="st"><div class="sl">bis Ernte</div><div class="sv mono" id="sHarv">—</div></div>
+      </div>
+    </div>
+
+    <div class="c" id="weightWidget"></div>
+
+    <div class="c">
+      <div class="ct">Heute<span class="ln"></span><span id="tDate" class="mono"></span></div>
+      <div id="tTasks"></div>
+    </div>
+
+    <div class="c">
+      <div class="ct">Zielwerte · Phase<span class="ln"></span></div>
+      <div class="rl" id="hRanges"></div>
+    </div>
+
+    <div class="c">
+      <div class="ct">BioBizz Heute · pro Liter<span class="ln"></span></div>
+      <div id="bbToday"></div>
+    </div>
+
+    <div class="c">
+      <div class="ct">Was jetzt wichtig ist<span class="ln"></span></div>
+      <ul class="tp" id="tTips"></ul>
+    </div>
+  </div>
+
+  <!-- WATER -->
+  <div class="view" id="v-water">
+    <h2 class="vt">Bewässerung</h2>
+    <div class="c">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+        <div style="min-width:0;flex:1">
+          <div class="sl" style="margin-bottom:4px">Empfohlen heute</div>
+          <div class="fd" style="font-size:26px" id="wRec">—</div>
+          <div class="sub mono" id="wRecNote"></div>
+        </div>
+        <div style="text-align:right">
+          <div class="sl" style="margin-bottom:4px">Ziel</div>
+          <div class="fd" style="font-size:17px" id="wTg">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="c">
+      <div class="ct">BioBizz Rechner<span class="ln"></span></div>
+      <div class="fr"><label>Gießmenge gesamt</label><div style="display:flex;gap:8px;align-items:center"><input type="number" id="calcL" value="2" step="0.5" min="0.1" style="flex:1"><span class="sub">Liter</span></div></div>
+      <div id="calcOut"></div>
+      <p class="sub" style="margin-top:10px;font-size:12px;line-height:1.5" id="calcNote"></p>
+    </div>
+    <div class="c">
+      <div class="ct">Letzte Gießungen<span class="ln"></span><span id="wCount" class="sub mono"></span></div>
+      <div id="wHist"></div>
+    </div>
+  </div>
+
+  <!-- PHASES -->
+  <div class="view" id="v-phases">
+    <h2 class="vt">Phasen</h2>
+    <div class="c" id="curPhase"></div>
+    <div class="c">
+      <div class="ct">70-Tage-Roadmap<span class="ln"></span></div>
+      <div class="rm" id="road"></div>
+    </div>
+  </div>
+
+  <!-- VERLAUF -->
+  <div class="view" id="v-journal">
+    <h2 class="vt">Verlauf</h2>
+    <div id="plantSwitcher"></div>
+    <div class="c" id="jNoteCard">
+      <div class="fr"><label>Neue Notiz</label><textarea id="jIn" rows="2" placeholder="Beobachtung, Farbe, Geruch, Fotonummer…"></textarea></div>
+      <div class="fr" id="jPlantWrap"></div>
+      <button class="bp" id="jAdd">Notiz speichern</button>
+    </div>
+    <div class="c" style="padding:12px 14px">
+      <div class="ch" id="tlFilter">
+        <button class="chp a" data-f="all">Alle</button>
+        <button class="chp" data-f="water">Gießen</button>
+        <button class="chp" data-f="note">Notizen</button>
+        <button class="chp" data-f="photo">Fotos</button>
+        <button class="chp" data-f="symptom">Symptome</button>
+        <button class="chp" data-f="weight">Gewicht</button>
+        <button class="chp" data-f="env">Umgebung</button>
+        <button class="chp" data-f="phase">Meilensteine</button>
+      </div>
+    </div>
+    <div id="jList"></div>
+  </div>
+
+  <!-- VERGLEICH -->
+  <div class="view" id="v-compare"></div>
+
+  <!-- KOSTEN -->
+  <div class="view" id="v-costs"></div>
+
+  <!-- DATA -->
+  <div class="view" id="v-data">
+    <h2 class="vt">Daten</h2>
+    <div class="c"><div class="ct">Gießmenge · 14 Tage<span class="ln"></span></div><div class="cw"><svg id="chW" width="100%" height="100%"></svg></div></div>
+    <div class="c"><div class="ct">pH-Verlauf<span class="ln"></span></div><div class="cw"><svg id="chP" width="100%" height="100%"></svg></div><div class="lg"><span><i style="background:var(--g)"></i>gemessen</span><span><i style="background:var(--bd2)"></i>Ziel</span></div></div>
+    <div class="c"><div class="ct">EC-Verlauf<span class="ln"></span></div><div class="cw"><svg id="chE" width="100%" height="100%"></svg></div><div class="lg"><span><i style="background:var(--g-soft)"></i>gemessen</span><span><i style="background:var(--bd2)"></i>Ziel</span></div></div>
+    <div class="c"><div class="ct">Bilanz<span class="ln"></span></div><div class="sg">
+      <div class="st"><div class="sl">Einträge</div><div class="sv mono" id="sumN">—</div></div>
+      <div class="st"><div class="sl">∑ Wasser</div><div class="sv mono" id="sumW">—</div></div>
+      <div class="st"><div class="sl">Ø pH</div><div class="sv mono" id="sumPh">—</div></div>
+    </div></div>
+  </div>
+</div>
+
+<button class="fab" id="fab" style="display:none"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+
+<nav class="tb" id="tb" style="display:none">
+  <div class="tbi">
+    <button class="tab a" data-v="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg><span>Heute</span></button>
+    <button class="tab" data-v="water"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.5s6 6.5 6 11a6 6 0 1 1-12 0c0-4.5 6-11 6-11z"/></svg><span>Gießen</span></button>
+    <button class="tab" data-v="journal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h13a2 2 0 0 1 2 2v14l-4-2-4 2-4-2-3 2V6a2 2 0 0 1 2-2z"/></svg><span>Verlauf</span></button>
+    <button class="tab" data-v="compare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/><rect x="14" y="15" width="7" height="6" rx="1"/></svg><span>Pflanzen</span></button>
+    <button class="tab" data-v="costs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg><span>Kosten</span></button>
+    <button class="tab" data-v="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l3-4 3 3 5-6"/></svg><span>Daten</span></button>
+  </div>
+</nav>
+
+<div class="ov" id="ov"></div>
+<div class="sh" id="sh"><div class="hh"></div><div id="shC"></div></div>
+<div class="ts" id="ts"></div>
+<div class="photoviewer" id="photoViewer"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
